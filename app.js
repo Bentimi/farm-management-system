@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const { xss } = require('express-xss-sanitizer');
+const { errorHandler } = require("./middleware/errorHandling.middleware");
+const { responseHandler } = require("./middleware/responseHandler.middleware");
 require("dotenv").config();
 
 const app = express();
@@ -26,9 +28,14 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(xss());
 
+app.use(responseHandler)
+
 app.get('/', (req, res) => {
     res.send("Welcome to Agritronix server");
 })
 
+
+
+app.use(errorHandler);
 
 module.exports = app;
