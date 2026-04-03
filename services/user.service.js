@@ -13,7 +13,7 @@ const createUser = async (data) => {
     })
 
     if (existingEmail) {
-        throw new AppError("Email already exists", 400)
+        throw new AppError("Email already exists", 409)
     }
 
     const password = data.password;
