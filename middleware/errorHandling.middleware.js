@@ -15,6 +15,13 @@ const prismaErrors = {
     'P2003' : { status: 400, message: 'Foreign key constraint failed' }
 };
 
+if (err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).json({
+        success: false,
+        message: "Invalid or missing CSRF token"
+    });
+}
+
 if (prismaErrors[err.code]) {
     return res.status(prismaErrors[err.code].status).json({
         success: false,

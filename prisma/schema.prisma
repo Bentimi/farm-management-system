@@ -24,8 +24,6 @@ enum Role {
   user
   admin
   staff
-  agent
-  lender
 }
 
 model User { 
@@ -33,6 +31,7 @@ model User {
   email         String?  @unique
   first_name    String?
   last_name     String?
+  username      String?   @unique
   phone_number  String?         @unique
   gender        genderStatus?
   marital_status maritalStatus?
