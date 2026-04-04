@@ -12,5 +12,6 @@ router.post('/login', validatedData.validatedLoginSchema, userController.login_u
 // Protected endpoints (require CSRF token)
 router.post('/logout', authMiddleware, doubleCsrfProtection, userController.logout_user);
 router.get('/:id', authMiddleware, doubleCsrfProtection, userController.user_profile);
+router.put('/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedUpdateSchema, userController.update_user);
 
 module.exports = router;

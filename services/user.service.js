@@ -96,8 +96,44 @@ const userProfile = async (userId, targetId) => {
     return profile;
 }
 
+const updateUser = async (userId, targetId, data) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!userAuth.id === targetId || (!userAuth.role === "admin" || !userAuth.role === "staff")) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!data.first_name || !data.last_name || !data.email || !data.phone_number || !data.gender || !data.marital_status) {
+        throw new AppError("All fields required", 400)
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: targetId
+        },
+        data: {
+            ...data
+        },
+        omit: {
+            password: true
+        }
+    })
+
+    return updatedUser;
+
+}
+
 module.exports = {
     createUser,
     loginUser,
-    userProfile
+    userProfile,
+    updateUser
 }

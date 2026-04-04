@@ -19,7 +19,18 @@ const loginSchema = joi.object({
     credential: joi.string().trim().required(),
     password: joi.string().trim().required()
 })
+
+const userUpdateSchema = joi.object({
+    first_name: joi.string().trim().required(),
+    last_name: joi.string().trim().required(),
+    email: joi.string().trim().email.required(),
+    phone_number: joi.string().trim().required(),
+    gender: joi.string().trim().valid('male', 'female', 'other').required(),
+    marital_status: joi.string().trim().valid('single', 'married', 'divorced', 'other').required()
+})
+
 module.exports = {
     validatedUserSchema: validate(userSchema),
-    validatedLoginSchema: validate(loginSchema)
+    validatedLoginSchema: validate(loginSchema),
+    validatedUpdateSchema: validate(userUpdateSchema)
 }

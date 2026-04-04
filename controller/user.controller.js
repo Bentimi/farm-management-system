@@ -87,9 +87,23 @@ const user_profile = async (req, res, next) => {
     }
 }
 
+const update_user = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const targetId = req.params.id;
+        const data = req.body;
+        const user = await userService.updateUser(userId, targetId, data);
+        res.success(user, "User updated successfully");
+
+    } catch (e) {
+        next(e);
+    }
+}
+
 module.exports = {
     create_user,
     login_user,
     logout_user,
-    user_profile
+    user_profile,
+    update_user
 };
