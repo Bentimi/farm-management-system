@@ -220,9 +220,53 @@ const changePassword = async (userId, data) => {
         },
         data: {
             password: hashedPassword
+        },
+        omit: {
+            password: true
         }
     })
     return user
+}
+
+const roleAllocation = async (userId, targetId, data) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (userAuth.role !== "admin" || userAuth.id === targetId) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    const existingUser = await prisma.user.findUnique({ 
+        where: {
+            id: targetId
+        }
+    })
+
+    if (!existingUser) {
+        throw new AppError("User not found", 404)
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: targetId
+        },
+        data: {
+            role: data.role
+        },
+        omit: {
+            password: true
+        }
+    })
+
+    return updatedUser;
+
 }
 
 module.exports = {
@@ -231,5 +275,6 @@ module.exports = {
     userProfile,
     updateUser,
     userActiveStatus,
-    changePassword
+    changePassword,
+    roleAllocation
 }

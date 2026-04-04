@@ -14,5 +14,7 @@ router.post('/logout', authMiddleware, doubleCsrfProtection, userController.logo
 router.get('/:id', authMiddleware, doubleCsrfProtection, userController.user_profile);
 router.put('/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedUpdateSchema, userController.update_user);
 router.patch('/:id/active-status', authMiddleware, doubleCsrfProtection, userController.userActive_status);
+router.put('change-password', authMiddleware, doubleCsrfProtection, validatedData.validatedChangePasswordSchema, userController.change_password);
+router.put('/role/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedRoleSchema, userController.role_allocation);
 
 module.exports = router;

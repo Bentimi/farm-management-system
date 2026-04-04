@@ -123,6 +123,21 @@ const change_password = async (req, res, next) => {
     }
 }
 
+const role_allocation = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const targetId = req.params.id;
+        const data = req.body;
+
+        const user = await userService.roleAllocation(userId, targetId, data);
+
+        res.success(user, "User role updated successfully");
+
+    } catch (e) {
+        next(e);
+    }
+}
+
 
 module.exports = {
     create_user,
@@ -131,5 +146,6 @@ module.exports = {
     user_profile,
     update_user,
     userActive_status,
-    change_password
+    change_password,
+    role_allocation
 };
