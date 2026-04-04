@@ -181,8 +181,48 @@ const userActiveStatus = async (userId, targetId) => {
     return {data: userWithoutPassword};
 }
 
-const changePassword = async (userId, targetId, data) => {
+const changePassword = async (userId, data) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id : userId
+        }
+    })
 
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Account is inactive", 403)
+    }
+
+    if (!data.current_password || !data.new_password) {
+        throw new AppError("All fields required", 400)
+    }
+
+    const comparePassword = await bcrypt.compare(data.current_password, userAuth.password);
+
+    if (!comparePassword) {
+        throw new AppError("Current password is incorrect", 400)
+    }
+
+    const validateNewPassword = await bcrypt.compare(data.new_password, userAuth.password);
+
+    if (validateNewPassword) {
+        throw new AppError("New password cannot be the same as the current password", 400)
+    }
+
+    const hashedPassword = await bcrypt.hash(data.new_password, 10);
+
+    const user = await prisma.user.update({
+        where: {
+            id: userAuth.id
+        },
+        data: {
+            password: hashedPassword
+        }
+    })
+    return user
 }
 
 module.exports = {

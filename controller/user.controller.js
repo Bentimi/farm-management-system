@@ -112,6 +112,17 @@ const userActive_status = async (req, res, next) => {
     }
 }
 
+const change_password = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const data = req.body;
+        const user = await userService.changePassword(userId, data);
+        res.success(user, "Password changed successfully");
+    } catch (e) {
+        next(e);
+    }
+}
+
 
 module.exports = {
     create_user,
@@ -119,5 +130,6 @@ module.exports = {
     logout_user,
     user_profile,
     update_user,
-    userActive_status
+    userActive_status,
+    change_password
 };
