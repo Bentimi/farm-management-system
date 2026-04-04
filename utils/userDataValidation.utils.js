@@ -29,8 +29,26 @@ const userUpdateSchema = joi.object({
     marital_status: joi.string().trim().valid('single', 'married', 'divorced', 'other').required()
 })
 
+const userRoleSchema = joi.object({
+    role: joi.string().trim().valid('admin', 'staff', 'user').required()
+})
+
+const changePasswordSchema = joi.object({
+    current_password: joi.string().trim().required(),
+    new_password: joi.string().trim()
+    .min(8)
+    .max(30)
+    .required() 
+    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])'))
+    .messages({
+      'string.pattern.base': 'New password must include uppercase, lowercase, number, and a special character (!@#$%^&*)',
+    })
+})
+
 module.exports = {
     validatedUserSchema: validate(userSchema),
     validatedLoginSchema: validate(loginSchema),
-    validatedUpdateSchema: validate(userUpdateSchema)
+    validatedUpdateSchema: validate(userUpdateSchema),
+    validatedRoleSchema: validate(userRoleSchema),
+    validatedChangePasswordSchema: validate(changePasswordSchema)
 }

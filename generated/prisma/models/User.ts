@@ -29,12 +29,15 @@ export type UserMinAggregateOutputType = {
   email: string | null
   first_name: string | null
   last_name: string | null
+  username: string | null
   phone_number: string | null
   gender: $Enums.genderStatus | null
   marital_status: $Enums.maritalStatus | null
   role: $Enums.Role | null
   active: boolean | null
   password: string | null
+  last_login: Date | null
+  date_joined: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -42,12 +45,15 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   first_name: string | null
   last_name: string | null
+  username: string | null
   phone_number: string | null
   gender: $Enums.genderStatus | null
   marital_status: $Enums.maritalStatus | null
   role: $Enums.Role | null
   active: boolean | null
   password: string | null
+  last_login: Date | null
+  date_joined: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -55,12 +61,15 @@ export type UserCountAggregateOutputType = {
   email: number
   first_name: number
   last_name: number
+  username: number
   phone_number: number
   gender: number
   marital_status: number
   role: number
   active: number
   password: number
+  last_login: number
+  date_joined: number
   _all: number
 }
 
@@ -70,12 +79,15 @@ export type UserMinAggregateInputType = {
   email?: true
   first_name?: true
   last_name?: true
+  username?: true
   phone_number?: true
   gender?: true
   marital_status?: true
   role?: true
   active?: true
   password?: true
+  last_login?: true
+  date_joined?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -83,12 +95,15 @@ export type UserMaxAggregateInputType = {
   email?: true
   first_name?: true
   last_name?: true
+  username?: true
   phone_number?: true
   gender?: true
   marital_status?: true
   role?: true
   active?: true
   password?: true
+  last_login?: true
+  date_joined?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -96,12 +111,15 @@ export type UserCountAggregateInputType = {
   email?: true
   first_name?: true
   last_name?: true
+  username?: true
   phone_number?: true
   gender?: true
   marital_status?: true
   role?: true
   active?: true
   password?: true
+  last_login?: true
+  date_joined?: true
   _all?: true
 }
 
@@ -182,12 +200,15 @@ export type UserGroupByOutputType = {
   email: string | null
   first_name: string | null
   last_name: string | null
+  username: string | null
   phone_number: string | null
   gender: $Enums.genderStatus | null
   marital_status: $Enums.maritalStatus | null
   role: $Enums.Role
   active: boolean
   password: string
+  last_login: Date | null
+  date_joined: Date
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -216,12 +237,15 @@ export type UserWhereInput = {
   email?: Prisma.StringNullableFilter<"User"> | string | null
   first_name?: Prisma.StringNullableFilter<"User"> | string | null
   last_name?: Prisma.StringNullableFilter<"User"> | string | null
+  username?: Prisma.StringNullableFilter<"User"> | string | null
   phone_number?: Prisma.StringNullableFilter<"User"> | string | null
   gender?: Prisma.EnumgenderStatusNullableFilter<"User"> | $Enums.genderStatus | null
   marital_status?: Prisma.EnummaritalStatusNullableFilter<"User"> | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   active?: Prisma.BoolFilter<"User"> | boolean
   password?: Prisma.StringFilter<"User"> | string
+  last_login?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  date_joined?: Prisma.DateTimeFilter<"User"> | Date | string
 }
 
 export type UserOrderByWithRelationInput = {
@@ -229,17 +253,21 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   first_name?: Prisma.SortOrderInput | Prisma.SortOrder
   last_name?: Prisma.SortOrderInput | Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   phone_number?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   marital_status?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  last_login?: Prisma.SortOrderInput | Prisma.SortOrder
+  date_joined?: Prisma.SortOrder
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  username?: string
   phone_number?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
@@ -251,19 +279,24 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   active?: Prisma.BoolFilter<"User"> | boolean
   password?: Prisma.StringFilter<"User"> | string
-}, "id" | "email" | "phone_number">
+  last_login?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  date_joined?: Prisma.DateTimeFilter<"User"> | Date | string
+}, "id" | "email" | "username" | "phone_number">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   first_name?: Prisma.SortOrderInput | Prisma.SortOrder
   last_name?: Prisma.SortOrderInput | Prisma.SortOrder
+  username?: Prisma.SortOrderInput | Prisma.SortOrder
   phone_number?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   marital_status?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  last_login?: Prisma.SortOrderInput | Prisma.SortOrder
+  date_joined?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -277,12 +310,15 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   first_name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   last_name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  username?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   phone_number?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   gender?: Prisma.EnumgenderStatusNullableWithAggregatesFilter<"User"> | $Enums.genderStatus | null
   marital_status?: Prisma.EnummaritalStatusNullableWithAggregatesFilter<"User"> | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   active?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   password?: Prisma.StringWithAggregatesFilter<"User"> | string
+  last_login?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  date_joined?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
 export type UserCreateInput = {
@@ -290,12 +326,15 @@ export type UserCreateInput = {
   email?: string | null
   first_name?: string | null
   last_name?: string | null
+  username?: string | null
   phone_number?: string | null
   gender?: $Enums.genderStatus | null
   marital_status?: $Enums.maritalStatus | null
   role?: $Enums.Role
   active?: boolean
   password: string
+  last_login?: Date | string | null
+  date_joined?: Date | string
 }
 
 export type UserUncheckedCreateInput = {
@@ -303,12 +342,15 @@ export type UserUncheckedCreateInput = {
   email?: string | null
   first_name?: string | null
   last_name?: string | null
+  username?: string | null
   phone_number?: string | null
   gender?: $Enums.genderStatus | null
   marital_status?: $Enums.maritalStatus | null
   role?: $Enums.Role
   active?: boolean
   password: string
+  last_login?: Date | string | null
+  date_joined?: Date | string
 }
 
 export type UserUpdateInput = {
@@ -316,12 +358,15 @@ export type UserUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gender?: Prisma.NullableEnumgenderStatusFieldUpdateOperationsInput | $Enums.genderStatus | null
   marital_status?: Prisma.NullableEnummaritalStatusFieldUpdateOperationsInput | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  date_joined?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserUncheckedUpdateInput = {
@@ -329,12 +374,15 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gender?: Prisma.NullableEnumgenderStatusFieldUpdateOperationsInput | $Enums.genderStatus | null
   marital_status?: Prisma.NullableEnummaritalStatusFieldUpdateOperationsInput | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  date_joined?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserCreateManyInput = {
@@ -342,12 +390,15 @@ export type UserCreateManyInput = {
   email?: string | null
   first_name?: string | null
   last_name?: string | null
+  username?: string | null
   phone_number?: string | null
   gender?: $Enums.genderStatus | null
   marital_status?: $Enums.maritalStatus | null
   role?: $Enums.Role
   active?: boolean
   password: string
+  last_login?: Date | string | null
+  date_joined?: Date | string
 }
 
 export type UserUpdateManyMutationInput = {
@@ -355,12 +406,15 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gender?: Prisma.NullableEnumgenderStatusFieldUpdateOperationsInput | $Enums.genderStatus | null
   marital_status?: Prisma.NullableEnummaritalStatusFieldUpdateOperationsInput | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  date_joined?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -368,12 +422,15 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gender?: Prisma.NullableEnumgenderStatusFieldUpdateOperationsInput | $Enums.genderStatus | null
   marital_status?: Prisma.NullableEnummaritalStatusFieldUpdateOperationsInput | $Enums.maritalStatus | null
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  date_joined?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -381,12 +438,15 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   phone_number?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   marital_status?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  last_login?: Prisma.SortOrder
+  date_joined?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -394,12 +454,15 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   phone_number?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   marital_status?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  last_login?: Prisma.SortOrder
+  date_joined?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -407,12 +470,15 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   first_name?: Prisma.SortOrder
   last_name?: Prisma.SortOrder
+  username?: Prisma.SortOrder
   phone_number?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   marital_status?: Prisma.SortOrder
   role?: Prisma.SortOrder
   active?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  last_login?: Prisma.SortOrder
+  date_joined?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -439,6 +505,14 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
+}
+
 
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -446,12 +520,15 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   first_name?: boolean
   last_name?: boolean
+  username?: boolean
   phone_number?: boolean
   gender?: boolean
   marital_status?: boolean
   role?: boolean
   active?: boolean
   password?: boolean
+  last_login?: boolean
+  date_joined?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -459,12 +536,15 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   first_name?: boolean
   last_name?: boolean
+  username?: boolean
   phone_number?: boolean
   gender?: boolean
   marital_status?: boolean
   role?: boolean
   active?: boolean
   password?: boolean
+  last_login?: boolean
+  date_joined?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -472,12 +552,15 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   first_name?: boolean
   last_name?: boolean
+  username?: boolean
   phone_number?: boolean
   gender?: boolean
   marital_status?: boolean
   role?: boolean
   active?: boolean
   password?: boolean
+  last_login?: boolean
+  date_joined?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -485,15 +568,18 @@ export type UserSelectScalar = {
   email?: boolean
   first_name?: boolean
   last_name?: boolean
+  username?: boolean
   phone_number?: boolean
   gender?: boolean
   marital_status?: boolean
   role?: boolean
   active?: boolean
   password?: boolean
+  last_login?: boolean
+  date_joined?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "first_name" | "last_name" | "phone_number" | "gender" | "marital_status" | "role" | "active" | "password", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "first_name" | "last_name" | "username" | "phone_number" | "gender" | "marital_status" | "role" | "active" | "password" | "last_login" | "date_joined", ExtArgs["result"]["user"]>
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -503,12 +589,15 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string | null
     first_name: string | null
     last_name: string | null
+    username: string | null
     phone_number: string | null
     gender: $Enums.genderStatus | null
     marital_status: $Enums.maritalStatus | null
     role: $Enums.Role
     active: boolean
     password: string
+    last_login: Date | null
+    date_joined: Date
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -936,12 +1025,15 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly first_name: Prisma.FieldRef<"User", 'String'>
   readonly last_name: Prisma.FieldRef<"User", 'String'>
+  readonly username: Prisma.FieldRef<"User", 'String'>
   readonly phone_number: Prisma.FieldRef<"User", 'String'>
   readonly gender: Prisma.FieldRef<"User", 'genderStatus'>
   readonly marital_status: Prisma.FieldRef<"User", 'maritalStatus'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly active: Prisma.FieldRef<"User", 'Boolean'>
   readonly password: Prisma.FieldRef<"User", 'String'>
+  readonly last_login: Prisma.FieldRef<"User", 'DateTime'>
+  readonly date_joined: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 

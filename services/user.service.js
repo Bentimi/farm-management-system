@@ -131,9 +131,65 @@ const updateUser = async (userId, targetId, data) => {
 
 }
 
+const userActiveStatus = async (userId, targetId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!userAuth.id === targetId || (!userAuth.role === "admin" || !userAuth.role === "staff")) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    const user = await prisma.user.findUnique({
+        where: {
+            id: targetId
+        }
+    })
+
+    if (!user) {
+        throw new AppError("User not found", 404)
+    }
+
+    if (user.active) {
+        await prisma.user.update({
+            where: {
+                id: targetId
+            },
+            data: {
+                active: false
+            }
+        })
+    } else {
+        await prisma.user.update({
+            where: {
+                id: targetId
+            },
+            data: {
+                active: true
+            }
+        })
+    }
+
+    const { password, ...userWithoutPassword } = user;
+
+    return {data: userWithoutPassword};
+}
+
+const changePassword = async (userId, targetId, data) => {
+
+}
+
 module.exports = {
     createUser,
     loginUser,
     userProfile,
-    updateUser
+    updateUser,
+    userActiveStatus,
+    changePassword
 }

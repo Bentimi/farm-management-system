@@ -100,10 +100,24 @@ const update_user = async (req, res, next) => {
     }
 }
 
+const userActive_status = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const targetId = req.params.id;
+        const user = await userService.userActiveStatus(userId, targetId);
+        const message = user.data.active ? "User activated successfully" : "User deactivated successfully";
+        res.success(user, message);
+    } catch (e) {
+        next(e);
+    }
+}
+
+
 module.exports = {
     create_user,
     login_user,
     logout_user,
     user_profile,
-    update_user
+    update_user,
+    userActive_status
 };

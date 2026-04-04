@@ -31,9 +31,7 @@ export type maritalStatus = (typeof maritalStatus)[keyof typeof maritalStatus]
 export const Role = {
   user: 'user',
   admin: 'admin',
-  staff: 'staff',
-  agent: 'agent',
-  lender: 'lender'
+  staff: 'staff'
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]

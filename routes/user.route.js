@@ -13,5 +13,6 @@ router.post('/login', validatedData.validatedLoginSchema, userController.login_u
 router.post('/logout', authMiddleware, doubleCsrfProtection, userController.logout_user);
 router.get('/:id', authMiddleware, doubleCsrfProtection, userController.user_profile);
 router.put('/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedUpdateSchema, userController.update_user);
+router.patch('/:id/active-status', authMiddleware, doubleCsrfProtection, userController.userActive_status);
 
 module.exports = router;
