@@ -42,4 +42,53 @@ model User {
   last_login    DateTime?
   date_joined   DateTime        @default(now())
 
+  uploadedProducts Product[] @relation("UploadedProducts")
+  updatedProducts  Product[] @relation("UpdatedProducts")
+  approvedProducts Product[] @relation("ApprovedProducts")
+}
+
+model Product {
+  id            String      @id   @default(uuid())
+  name          String?
+  price         Decimal     @db.Decimal(10, 2)
+  newPrice      Decimal     @db.Decimal(10, 2)
+  description   String?
+  quantity      Int?        @default(0)
+  draft         Boolean     @default(true)
+  approved      Boolean     @default(false)
+  categoryId    String?
+  category      ProductCategory   @relation(fields: [categoryId])
+  uploadedById  String?
+  uploadedBy    User? @relation("UploadedProducts", fields: [uploadedById], references: [id])
+
+  updatedById   String?
+  updatedBy     User? @relation("UpdatedProducts", fields: [updatedById], references: [id])
+
+  approvedById  String?
+  approvedBy    User? @relation("ApprovedProducts", fields: [approvedById], references: [id])
+
+
+  photo         String?
+
+  last_updated  DateTime?
+  createdAt     DateTime    @default(now())
+}
+
+model ProductCategory {
+  id          String    @id   @default(uuid())
+  category    String?   @unique
+  addedBy     String?
+
+  createdAt   DateTime  @default(now)
+
+  products   Product[]
+}
+
+model ProductDescription {
+  id          String    @id   @default(uuid())
+  photo       String?
+  productId   String?
+  product     Product?  @relation("Product", fields: [product_id], references: [id])
+  description String?
+  createdAt   DateTime  @default(now())
 }

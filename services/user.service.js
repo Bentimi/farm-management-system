@@ -1,4 +1,4 @@
-const { prisma } = require("../lib/prisma.js")
+const { prisma } = require("../lib/prisma")
 const bcrypt = require("bcryptjs");
 const AppError = require("../utils/AppError.utils.js");
 const { generateUsername } = require("../utils/dataNormalization.utils.js");
