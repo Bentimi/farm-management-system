@@ -39,7 +39,9 @@ const createProduct = async (userId, data, file) => {
         throw new AppError("Product already exists", 409)
     }
 
-    const newProduct = await prisma.product.create({
+    const result = await prisma.$transaction(async (tx) => {
+
+        const newProduct = await tx.product.create({
         data: {
             name: data.name,
             description: data.description,
@@ -58,12 +60,23 @@ const createProduct = async (userId, data, file) => {
         resource_type: "image"
     })
 
-    newProduct.photo = await uploadProduct.secure_url;
+    const updatedProduct = await tx.product.update({
+            where: { id: newProduct.id },
+            data: { photo: uploadProduct.secure_url }
+        });
 
-    return newProduct;
+    return updatedProduct;
+
+    })
+    return result;
+}
+
+const updateProduct = async (userId, targetId, data, file) => {
+
 }
 
 
 module.exports = {
-    createProduct
+    createProduct,
+    updateProduct
 }

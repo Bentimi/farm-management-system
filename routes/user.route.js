@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/user.controller");
-const validatedData =  require("../utils/userDataValidation.utils");
+const validatedData =  require("../validation/user.validation");
 const { doubleCsrfProtection } = require("../middleware/csrf.middleware");
 const { authMiddleware } = require("../middleware/auth.middleware");
 

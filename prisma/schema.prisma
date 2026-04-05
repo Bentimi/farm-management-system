@@ -70,6 +70,8 @@ model Product {
 
   photo         String?
 
+  descriptions  ProductDescription[] @relation("Product")
+
   last_updated  DateTime?
   createdAt     DateTime    @default(now())
 }
@@ -88,7 +90,7 @@ model ProductDescription {
   id          String    @id   @default(uuid())
   photo       String?
   productId   String?
-  product     Product?  @relation("Product", fields: [product_id], references: [id])
+  product     Product?  @relation("Product", fields: [productId], references: [id])
   description String?
   createdAt   DateTime  @default(now())
 }
