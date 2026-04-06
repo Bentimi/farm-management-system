@@ -413,6 +413,49 @@ const productPublish = async (userId, productId) => {
     return { product: updatedProduct }
 }
 
+const addToCart = async (userId, data) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    if (!data.quantity || data.quantity <= 0) {
+        throw new AppError("A valid quantity is required", 400);
+    }
+    
+
+    const existingProduct = await prisma.product.findUnique({
+        where: {
+            id: data.productId
+        }
+    })
+
+    if (!existingProduct) {
+        throw new AppError("Product not found", 404);
+    }
+    
+    if (existingProduct.quantity < data.quantity) {
+    throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
+    }
+
+    const result = await prisma.$transaction( async (tx) => {
+
+        // const cartItem
+
+
+    })
+
+}
+
 module.exports = {
     createProduct,
     updateProduct,
@@ -420,5 +463,6 @@ module.exports = {
     updateProductDescription,
     createCategory,
     productApproval,
-    productPublish
+    productPublish,
+    addToCart
 }

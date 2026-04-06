@@ -141,6 +141,19 @@ const create_category = async (req, res, next) => {
     }
  }
 
+ const add_to_cart = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const data = req.body;
+
+        const cart = await productService.addToCart(userId, data);
+        res.success(cart, "Product added to cart successfully");
+
+    } catch (e) {
+        next(e);
+    }
+ }
+
 module.exports = {
     create_product,
     update_product,
@@ -148,5 +161,6 @@ module.exports = {
     update_product_description,
     create_category,
     product_approval,
-    product_publish
+    product_publish,
+    add_to_cart
 }
