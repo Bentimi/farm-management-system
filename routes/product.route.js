@@ -10,8 +10,8 @@ router.post('/create-product', authMiddleware, doubleCsrfProtection, validatedDa
 router.put('/create-product', authMiddleware, doubleCsrfProtection, validatedData.validatedProductSchema, upload.single('photo'), productController.update_product);
 router.post('/description/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, upload.array('photo', 10), productController.add_description);
 router.put('/description/:productId/:descriptionId', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, upload.array('photo', 10), productController.update_product_description);
-router.post('/add-category', authMiddleware, doubleCsrfProtection, productController.create_category);
+router.post('/add-category', authMiddleware, doubleCsrfProtection, validatedData.validatedProductCategorySchema, productController.create_category);
 router.patch('/product-approval/:id', authMiddleware, doubleCsrfProtection, productController.product_approval);
-router.patch('/product-status/:id', authMiddleware, doubleCsrfProtection, productController.product_publish)
+router.patch('/product-status/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductApprovalSchema, productController.product_publish)
 
 module.exports = router;
