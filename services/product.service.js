@@ -39,6 +39,16 @@ const createProduct = async (userId, data, file) => {
         throw new AppError("Product already exists", 409)
     }
 
+    const exsitingCategory = await prisma.productCategory.findUnique({
+        where: {
+            category: data.category
+        }
+    })
+
+    if (!exsitingCategory) {
+        throw new AppError("Category not found", 404)
+    }
+
     const result = await prisma.$transaction(async (tx) => {
 
         const newProduct = await tx.product.create({
@@ -283,7 +293,7 @@ const createCategory = async (userId, data) => {
             throw new AppError("Category name is required", 400);
         }
 
-        const existingCategory = await prisma.category.findUnique({
+        const existingCategory = await prisma.productCategory.findUnique({
             where: {
                 category: data.category
             }
@@ -304,9 +314,57 @@ const createCategory = async (userId, data) => {
         return { category: newCategory};
 }
 
+const productApproval = async (userId, productId, data) => {
+    const userAuth = await prisma.product({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    if (userAuth.role !== "admin" && userAuth.role !=="staff") {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!data.approval) {
+        throw new AppError("Field is required", 400);
+    }
+
+    const existingProduct = await prisma.product({
+        where: {
+            id: productId
+        }
+    })
+
+    if (!existingProduct) {
+        throw new AppError("Product not found", 404)
+    }
+
+    const updatedProduct = await prisma.product.update({
+        where: {
+            id: existingProduct.id
+        },
+        data : {
+            ...data
+        }
+    })
+
+    return { product: updatedProduct }
+
+}
+
 module.exports = {
     createProduct,
     updateProduct,
     addDescription,
-    updateProductDescription
+    updateProductDescription,
+    createCategory,
+    productApproval
 }

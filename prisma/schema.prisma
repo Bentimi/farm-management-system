@@ -47,6 +47,14 @@ model User {
   approvedProducts Product[] @relation("ApprovedProducts")
 }
 
+
+enum productStatus {
+  approved
+  pending
+  rejected
+  review
+}
+
 model Product {
   id            String      @id   @default(uuid())
   name          String?
@@ -55,7 +63,7 @@ model Product {
   description   String?
   quantity      Int?        @default(0)
   draft         Boolean     @default(true)
-  approved      Boolean     @default(false)
+  approved      productStatus     @default(pending)
   categoryId    String?
   category      ProductCategory?   @relation(fields: [categoryId], references: [id])
 
@@ -67,7 +75,6 @@ model Product {
 
   approvedById  String?
   approvedBy    User? @relation("ApprovedProducts", fields: [approvedById], references: [id])
-
 
   photo         String?
 

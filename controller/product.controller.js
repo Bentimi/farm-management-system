@@ -15,7 +15,7 @@ const create_product = async (req, res, next) => {
         })
 
     } catch (e) {
-        next (e);
+        next(e);
     }
 }
 
@@ -52,7 +52,7 @@ const add_description = async (req, res, next) => {
             "Product description added successfully");
 
     } catch (e) {
-        next (e);
+        next(e);
     }
 }
 
@@ -73,9 +73,55 @@ const update_product_description = async (req, res, next) => {
     }
 }
 
+const create_category = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const data = req.body;
+
+        const category = await productService.createCategory(userId, data);
+        res.status(201).json({
+            status: "success",
+            message: "Category created successfully",
+            data: category
+        })
+    } catch (e) {
+        next(e);
+    }
+ }
+
+ const product_approval = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const productId = req.params.id;
+        const data = req.body;
+
+        const product = await productService.productApproval(userId, productId, data);
+
+        let msg
+        if (product.approved === "approved" ) {
+            msg = "Product approved";
+        } else if (product.approved === "review") {
+            msg = "Product under review";
+        } else if (product.approved === "pending") {
+            msg = "Product status on pending";
+        } else {
+            msg = "Product rejected";
+        }
+
+
+        res.success(product, msg)
+
+    } catch (e) {
+        next(e);
+    }
+ }
+
 module.exports = {
     create_product,
     update_product,
     add_description,
-    update_product_description
+    update_product_description,
+    create_category,
+    product_approval
 }

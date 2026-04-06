@@ -65,6 +65,16 @@ export const Role: {
 
 export type Role = (typeof Role)[keyof typeof Role]
 
+
+export const productStatus: {
+  approved: 'approved',
+  pending: 'pending',
+  rejected: 'rejected',
+  review: 'review'
+};
+
+export type productStatus = (typeof productStatus)[keyof typeof productStatus]
+
 }
 
 export type genderStatus = $Enums.genderStatus
@@ -78,6 +88,10 @@ export const maritalStatus: typeof $Enums.maritalStatus
 export type Role = $Enums.Role
 
 export const Role: typeof $Enums.Role
+
+export type productStatus = $Enums.productStatus
+
+export const productStatus: typeof $Enums.productStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -2561,7 +2575,7 @@ export namespace Prisma {
     description: string | null
     quantity: number | null
     draft: boolean | null
-    approved: boolean | null
+    approved: $Enums.productStatus | null
     categoryId: string | null
     uploadedById: string | null
     updatedById: string | null
@@ -2579,7 +2593,7 @@ export namespace Prisma {
     description: string | null
     quantity: number | null
     draft: boolean | null
-    approved: boolean | null
+    approved: $Enums.productStatus | null
     categoryId: string | null
     uploadedById: string | null
     updatedById: string | null
@@ -2770,7 +2784,7 @@ export namespace Prisma {
     description: string | null
     quantity: number | null
     draft: boolean
-    approved: boolean
+    approved: $Enums.productStatus
     categoryId: string | null
     uploadedById: string | null
     updatedById: string | null
@@ -2924,7 +2938,7 @@ export namespace Prisma {
       description: string | null
       quantity: number | null
       draft: boolean
-      approved: boolean
+      approved: $Enums.productStatus
       categoryId: string | null
       uploadedById: string | null
       updatedById: string | null
@@ -3367,7 +3381,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Product", 'String'>
     readonly quantity: FieldRef<"Product", 'Int'>
     readonly draft: FieldRef<"Product", 'Boolean'>
-    readonly approved: FieldRef<"Product", 'Boolean'>
+    readonly approved: FieldRef<"Product", 'productStatus'>
     readonly categoryId: FieldRef<"Product", 'String'>
     readonly uploadedById: FieldRef<"Product", 'String'>
     readonly updatedById: FieldRef<"Product", 'String'>
@@ -4968,7 +4982,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMinAggregateOutputType = {
     id: string | null
-    photo: string | null
     productId: string | null
     description: string | null
     createdAt: Date | null
@@ -4976,7 +4989,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMaxAggregateOutputType = {
     id: string | null
-    photo: string | null
     productId: string | null
     description: string | null
     createdAt: Date | null
@@ -4994,7 +5006,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMinAggregateInputType = {
     id?: true
-    photo?: true
     productId?: true
     description?: true
     createdAt?: true
@@ -5002,7 +5013,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMaxAggregateInputType = {
     id?: true
-    photo?: true
     productId?: true
     description?: true
     createdAt?: true
@@ -5091,7 +5101,7 @@ export namespace Prisma {
 
   export type ProductDescriptionGroupByOutputType = {
     id: string
-    photo: string | null
+    photo: string[]
     productId: string | null
     description: string | null
     createdAt: Date
@@ -5167,7 +5177,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      photo: string | null
+      photo: string[]
       productId: string | null
       description: string | null
       createdAt: Date
@@ -5596,7 +5606,7 @@ export namespace Prisma {
    */
   interface ProductDescriptionFieldRefs {
     readonly id: FieldRef<"ProductDescription", 'String'>
-    readonly photo: FieldRef<"ProductDescription", 'String'>
+    readonly photo: FieldRef<"ProductDescription", 'String[]'>
     readonly productId: FieldRef<"ProductDescription", 'String'>
     readonly description: FieldRef<"ProductDescription", 'String'>
     readonly createdAt: FieldRef<"ProductDescription", 'DateTime'>
@@ -6248,6 +6258,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'productStatus'
+   */
+  export type EnumproductStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'productStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'productStatus[]'
+   */
+  export type ListEnumproductStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'productStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -6376,7 +6400,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Product"> | string | null
     quantity?: IntNullableFilter<"Product"> | number | null
     draft?: BoolFilter<"Product"> | boolean
-    approved?: BoolFilter<"Product"> | boolean
+    approved?: EnumproductStatusFilter<"Product"> | $Enums.productStatus
     categoryId?: StringNullableFilter<"Product"> | string | null
     uploadedById?: StringNullableFilter<"Product"> | string | null
     updatedById?: StringNullableFilter<"Product"> | string | null
@@ -6425,7 +6449,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Product"> | string | null
     quantity?: IntNullableFilter<"Product"> | number | null
     draft?: BoolFilter<"Product"> | boolean
-    approved?: BoolFilter<"Product"> | boolean
+    approved?: EnumproductStatusFilter<"Product"> | $Enums.productStatus
     categoryId?: StringNullableFilter<"Product"> | string | null
     uploadedById?: StringNullableFilter<"Product"> | string | null
     updatedById?: StringNullableFilter<"Product"> | string | null
@@ -6474,7 +6498,7 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Product"> | string | null
     quantity?: IntNullableWithAggregatesFilter<"Product"> | number | null
     draft?: BoolWithAggregatesFilter<"Product"> | boolean
-    approved?: BoolWithAggregatesFilter<"Product"> | boolean
+    approved?: EnumproductStatusWithAggregatesFilter<"Product"> | $Enums.productStatus
     categoryId?: StringNullableWithAggregatesFilter<"Product"> | string | null
     uploadedById?: StringNullableWithAggregatesFilter<"Product"> | string | null
     updatedById?: StringNullableWithAggregatesFilter<"Product"> | string | null
@@ -6539,7 +6563,7 @@ export namespace Prisma {
     OR?: ProductDescriptionWhereInput[]
     NOT?: ProductDescriptionWhereInput | ProductDescriptionWhereInput[]
     id?: StringFilter<"ProductDescription"> | string
-    photo?: StringNullableFilter<"ProductDescription"> | string | null
+    photo?: StringNullableListFilter<"ProductDescription">
     productId?: StringNullableFilter<"ProductDescription"> | string | null
     description?: StringNullableFilter<"ProductDescription"> | string | null
     createdAt?: DateTimeFilter<"ProductDescription"> | Date | string
@@ -6548,7 +6572,7 @@ export namespace Prisma {
 
   export type ProductDescriptionOrderByWithRelationInput = {
     id?: SortOrder
-    photo?: SortOrderInput | SortOrder
+    photo?: SortOrder
     productId?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -6560,7 +6584,7 @@ export namespace Prisma {
     AND?: ProductDescriptionWhereInput | ProductDescriptionWhereInput[]
     OR?: ProductDescriptionWhereInput[]
     NOT?: ProductDescriptionWhereInput | ProductDescriptionWhereInput[]
-    photo?: StringNullableFilter<"ProductDescription"> | string | null
+    photo?: StringNullableListFilter<"ProductDescription">
     productId?: StringNullableFilter<"ProductDescription"> | string | null
     description?: StringNullableFilter<"ProductDescription"> | string | null
     createdAt?: DateTimeFilter<"ProductDescription"> | Date | string
@@ -6569,7 +6593,7 @@ export namespace Prisma {
 
   export type ProductDescriptionOrderByWithAggregationInput = {
     id?: SortOrder
-    photo?: SortOrderInput | SortOrder
+    photo?: SortOrder
     productId?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -6583,7 +6607,7 @@ export namespace Prisma {
     OR?: ProductDescriptionScalarWhereWithAggregatesInput[]
     NOT?: ProductDescriptionScalarWhereWithAggregatesInput | ProductDescriptionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProductDescription"> | string
-    photo?: StringNullableWithAggregatesFilter<"ProductDescription"> | string | null
+    photo?: StringNullableListFilter<"ProductDescription">
     productId?: StringNullableWithAggregatesFilter<"ProductDescription"> | string | null
     description?: StringNullableWithAggregatesFilter<"ProductDescription"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"ProductDescription"> | Date | string
@@ -6721,7 +6745,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -6740,7 +6764,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     updatedById?: string | null
@@ -6759,7 +6783,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6778,7 +6802,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6797,7 +6821,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     updatedById?: string | null
@@ -6815,7 +6839,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6829,7 +6853,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6894,7 +6918,7 @@ export namespace Prisma {
 
   export type ProductDescriptionCreateInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     description?: string | null
     createdAt?: Date | string
     product?: ProductCreateNestedOneWithoutDescriptionsInput
@@ -6902,7 +6926,7 @@ export namespace Prisma {
 
   export type ProductDescriptionUncheckedCreateInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     productId?: string | null
     description?: string | null
     createdAt?: Date | string
@@ -6910,7 +6934,7 @@ export namespace Prisma {
 
   export type ProductDescriptionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     product?: ProductUpdateOneWithoutDescriptionsNestedInput
@@ -6918,7 +6942,7 @@ export namespace Prisma {
 
   export type ProductDescriptionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6926,7 +6950,7 @@ export namespace Prisma {
 
   export type ProductDescriptionCreateManyInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     productId?: string | null
     description?: string | null
     createdAt?: Date | string
@@ -6934,14 +6958,14 @@ export namespace Prisma {
 
   export type ProductDescriptionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductDescriptionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     productId?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7212,6 +7236,13 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type EnumproductStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.productStatus | EnumproductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumproductStatusFilter<$PrismaModel> | $Enums.productStatus
+  }
+
   export type ProductCategoryNullableScalarRelationFilter = {
     is?: ProductCategoryWhereInput | null
     isNot?: ProductCategoryWhereInput | null
@@ -7330,6 +7361,16 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type EnumproductStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.productStatus | EnumproductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumproductStatusWithAggregatesFilter<$PrismaModel> | $Enums.productStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumproductStatusFilter<$PrismaModel>
+    _max?: NestedEnumproductStatusFilter<$PrismaModel>
+  }
+
   export type ProductCategoryCountOrderByAggregateInput = {
     id?: SortOrder
     category?: SortOrder
@@ -7351,6 +7392,14 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type ProductNullableScalarRelationFilter = {
     is?: ProductWhereInput | null
     isNot?: ProductWhereInput | null
@@ -7366,7 +7415,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMaxOrderByAggregateInput = {
     id?: SortOrder
-    photo?: SortOrder
     productId?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
@@ -7374,7 +7422,6 @@ export namespace Prisma {
 
   export type ProductDescriptionMinOrderByAggregateInput = {
     id?: SortOrder
-    photo?: SortOrder
     productId?: SortOrder
     description?: SortOrder
     createdAt?: SortOrder
@@ -7592,6 +7639,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type EnumproductStatusFieldUpdateOperationsInput = {
+    set?: $Enums.productStatus
+  }
+
   export type ProductCategoryUpdateOneWithoutProductsNestedInput = {
     create?: XOR<ProductCategoryCreateWithoutProductsInput, ProductCategoryUncheckedCreateWithoutProductsInput>
     connectOrCreate?: ProductCategoryCreateOrConnectWithoutProductsInput
@@ -7702,10 +7753,19 @@ export namespace Prisma {
     deleteMany?: ProductScalarWhereInput | ProductScalarWhereInput[]
   }
 
+  export type ProductDescriptionCreatephotoInput = {
+    set: string[]
+  }
+
   export type ProductCreateNestedOneWithoutDescriptionsInput = {
     create?: XOR<ProductCreateWithoutDescriptionsInput, ProductUncheckedCreateWithoutDescriptionsInput>
     connectOrCreate?: ProductCreateOrConnectWithoutDescriptionsInput
     connect?: ProductWhereUniqueInput
+  }
+
+  export type ProductDescriptionUpdatephotoInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type ProductUpdateOneWithoutDescriptionsNestedInput = {
@@ -7927,6 +7987,13 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
+  export type NestedEnumproductStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.productStatus | EnumproductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumproductStatusFilter<$PrismaModel> | $Enums.productStatus
+  }
+
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -7970,6 +8037,16 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedEnumproductStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.productStatus | EnumproductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.productStatus[] | ListEnumproductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumproductStatusWithAggregatesFilter<$PrismaModel> | $Enums.productStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumproductStatusFilter<$PrismaModel>
+    _max?: NestedEnumproductStatusFilter<$PrismaModel>
+  }
+
   export type ProductCreateWithoutUploadedByInput = {
     id?: string
     name?: string | null
@@ -7978,7 +8055,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -7996,7 +8073,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     updatedById?: string | null
     approvedById?: string | null
@@ -8024,7 +8101,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -8042,7 +8119,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     approvedById?: string | null
@@ -8070,7 +8147,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -8088,7 +8165,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     updatedById?: string | null
@@ -8135,7 +8212,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Product"> | string | null
     quantity?: IntNullableFilter<"Product"> | number | null
     draft?: BoolFilter<"Product"> | boolean
-    approved?: BoolFilter<"Product"> | boolean
+    approved?: EnumproductStatusFilter<"Product"> | $Enums.productStatus
     categoryId?: StringNullableFilter<"Product"> | string | null
     uploadedById?: StringNullableFilter<"Product"> | string | null
     updatedById?: StringNullableFilter<"Product"> | string | null
@@ -8321,14 +8398,14 @@ export namespace Prisma {
 
   export type ProductDescriptionCreateWithoutProductInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     description?: string | null
     createdAt?: Date | string
   }
 
   export type ProductDescriptionUncheckedCreateWithoutProductInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     description?: string | null
     createdAt?: Date | string
   }
@@ -8530,7 +8607,7 @@ export namespace Prisma {
     OR?: ProductDescriptionScalarWhereInput[]
     NOT?: ProductDescriptionScalarWhereInput | ProductDescriptionScalarWhereInput[]
     id?: StringFilter<"ProductDescription"> | string
-    photo?: StringNullableFilter<"ProductDescription"> | string | null
+    photo?: StringNullableListFilter<"ProductDescription">
     productId?: StringNullableFilter<"ProductDescription"> | string | null
     description?: StringNullableFilter<"ProductDescription"> | string | null
     createdAt?: DateTimeFilter<"ProductDescription"> | Date | string
@@ -8544,7 +8621,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -8562,7 +8639,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     uploadedById?: string | null
     updatedById?: string | null
     approvedById?: string | null
@@ -8606,7 +8683,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     photo?: string | null
     last_updated?: Date | string | null
     createdAt?: Date | string
@@ -8624,7 +8701,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     updatedById?: string | null
@@ -8658,7 +8735,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8676,7 +8753,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8694,7 +8771,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     updatedById?: string | null
     approvedById?: string | null
@@ -8711,7 +8788,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     approvedById?: string | null
@@ -8728,7 +8805,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     categoryId?: string | null
     uploadedById?: string | null
     updatedById?: string | null
@@ -8745,7 +8822,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8763,7 +8840,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8781,7 +8858,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8798,7 +8875,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8816,7 +8893,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8834,7 +8911,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8851,7 +8928,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8869,7 +8946,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8887,7 +8964,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     categoryId?: NullableStringFieldUpdateOperationsInput | string | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8898,28 +8975,28 @@ export namespace Prisma {
 
   export type ProductDescriptionCreateManyProductInput = {
     id?: string
-    photo?: string | null
+    photo?: ProductDescriptionCreatephotoInput | string[]
     description?: string | null
     createdAt?: Date | string
   }
 
   export type ProductDescriptionUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductDescriptionUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProductDescriptionUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
-    photo?: NullableStringFieldUpdateOperationsInput | string | null
+    photo?: ProductDescriptionUpdatephotoInput | string[]
     description?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8932,7 +9009,7 @@ export namespace Prisma {
     description?: string | null
     quantity?: number | null
     draft?: boolean
-    approved?: boolean
+    approved?: $Enums.productStatus
     uploadedById?: string | null
     updatedById?: string | null
     approvedById?: string | null
@@ -8949,7 +9026,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     photo?: NullableStringFieldUpdateOperationsInput | string | null
     last_updated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8967,7 +9044,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8985,7 +9062,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: NullableIntFieldUpdateOperationsInput | number | null
     draft?: BoolFieldUpdateOperationsInput | boolean
-    approved?: BoolFieldUpdateOperationsInput | boolean
+    approved?: EnumproductStatusFieldUpdateOperationsInput | $Enums.productStatus
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     updatedById?: NullableStringFieldUpdateOperationsInput | string | null
     approvedById?: NullableStringFieldUpdateOperationsInput | string | null

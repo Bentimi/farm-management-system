@@ -202,6 +202,13 @@ exports.Role = exports.$Enums.Role = {
   staff: 'staff'
 };
 
+exports.productStatus = exports.$Enums.productStatus = {
+  approved: 'approved',
+  pending: 'pending',
+  rejected: 'rejected',
+  review: 'review'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Product: 'Product',
