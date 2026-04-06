@@ -117,11 +117,36 @@ const create_category = async (req, res, next) => {
     }
  }
 
+ const product_publish = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const productId = req.params.id;
+
+        const product = await productService.productPublish(userId, productId);
+
+        let msg;
+
+        if (product.draft) {
+            msg = "Product successfully published";
+        } else {
+            msg = "Product successfully saved to draft";
+        }
+
+        res.success(product, msg)
+
+
+    } catch (e) {
+        next(e);
+    }
+ }
+
 module.exports = {
     create_product,
     update_product,
     add_description,
     update_product_description,
     create_category,
-    product_approval
+    product_approval,
+    product_publish
 }

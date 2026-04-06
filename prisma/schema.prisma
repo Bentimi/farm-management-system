@@ -67,9 +67,6 @@ model Product {
   categoryId    String?
   category      ProductCategory?   @relation(fields: [categoryId], references: [id])
 
-  uploadedById  String?
-  uploadedBy    User? @relation("UploadedProducts", fields: [uploadedById], references: [id])
-
   updatedById   String?
   updatedBy     User? @relation("UpdatedProducts", fields: [updatedById], references: [id])
 

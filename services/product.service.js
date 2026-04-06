@@ -1,6 +1,7 @@
 const { prisma } = require("../lib/prisma");
 const AppError = require("../utils/AppError.utils");
 const cloudinary = require("../config/cloudinary.config");
+const userValidation = require("../validation/user.validation");
 
 const createProduct = async (userId, data, file) => {
     const userAuth = await prisma.user.findUnique({
@@ -357,7 +358,59 @@ const productApproval = async (userId, productId, data) => {
     })
 
     return { product: updatedProduct }
+}
 
+const productPublish = async (userId, productId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (userAuth.role !== "admin") {
+        throw new AppError("Unauthorized user", 403)
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+        where: {
+            id: productId
+        }
+    });
+
+    if (!existingProduct) {
+        throw new AppError("Product not found", 404);
+    }
+
+    let status;
+    let approvedBy;
+
+    if (existingProduct.draft) {
+        status = false
+        approvedBy = userAuth.id;
+    } else {
+        status = true
+    }
+
+    const updatedProduct =  await prisma.product.update({
+        where: {
+            id: productId
+        },
+        data: {
+            draft: status,
+            approvedById: approvedBy,
+            updatedById: userAuth.id,
+            last_updated: new Date()
+        }
+    })
+    return { product: updatedProduct }
 }
 
 module.exports = {
@@ -366,5 +419,6 @@ module.exports = {
     addDescription,
     updateProductDescription,
     createCategory,
-    productApproval
+    productApproval,
+    productPublish
 }
