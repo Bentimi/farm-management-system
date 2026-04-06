@@ -136,6 +136,39 @@ exports.Prisma.UserScalarFieldEnum = {
   date_joined: 'date_joined'
 };
 
+exports.Prisma.ProductScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  newPrice: 'newPrice',
+  description: 'description',
+  quantity: 'quantity',
+  draft: 'draft',
+  approved: 'approved',
+  categoryId: 'categoryId',
+  uploadedById: 'uploadedById',
+  updatedById: 'updatedById',
+  approvedById: 'approvedById',
+  photo: 'photo',
+  last_updated: 'last_updated',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductCategoryScalarFieldEnum = {
+  id: 'id',
+  category: 'category',
+  addedBy: 'addedBy',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ProductDescriptionScalarFieldEnum = {
+  id: 'id',
+  photo: 'photo',
+  productId: 'productId',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -170,7 +203,10 @@ exports.Role = exports.$Enums.Role = {
 };
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Product: 'Product',
+  ProductCategory: 'ProductCategory',
+  ProductDescription: 'ProductDescription'
 };
 
 /**

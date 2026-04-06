@@ -57,7 +57,8 @@ model Product {
   draft         Boolean     @default(true)
   approved      Boolean     @default(false)
   categoryId    String?
-  category      ProductCategory   @relation(fields: [categoryId])
+  category      ProductCategory?   @relation(fields: [categoryId], references: [id])
+
   uploadedById  String?
   uploadedBy    User? @relation("UploadedProducts", fields: [uploadedById], references: [id])
 
@@ -81,14 +82,14 @@ model ProductCategory {
   category    String?   @unique
   addedBy     String?
 
-  createdAt   DateTime  @default(now)
+  createdAt   DateTime  @default(now())
 
   products   Product[]
 }
 
 model ProductDescription {
   id          String    @id   @default(uuid())
-  photo       String?
+  photo       String[]
   productId   String?
   product     Product?  @relation("Product", fields: [productId], references: [id])
   description String?
