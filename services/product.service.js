@@ -113,10 +113,10 @@ const updateProduct = async (userId, targetId, data, file) => {
     }
 
     const uploadProduct = cloudinary.uploader.upload(file.path, {
-            folder: "products",
-            public_id: `product_${existingProduct.id}`,
-            resource_type: "image"
-        })
+        folder: "products",
+        public_id: `product_${existingProduct.id}`,
+        resource_type: "image"
+    })
 
     const updatedProduct = await prisma.product.update({
         where: {
@@ -278,45 +278,45 @@ const createCategory = async (userId, data) => {
         }
     })
 
-        if (!userAuth) {
-            throw new AppError("Unauthorized user", 401);
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Inactive user", 403);
+    }
+
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!data.category) {
+        throw new AppError("Category name is required", 400);
+    }
+
+    const existingCategory = await prisma.productCategory.findUnique({
+        where: {
+            category: data.category
         }
+    });
 
-        if (!userAuth.active) {
-            throw new AppError("Inactive user", 403);
+    if (existingCategory) {
+        throw new AppError("Category already exists", 409);
+    }
+
+    const newCategory = await prisma.productCategory.create({
+        data: {
+            category: data.category,
+            addedBy: userId,
+            last_updated: new Date()
         }
+    });
 
-        if (userAuth.role !== "admin" && userAuth.role !== "staff") {
-            throw new AppError("Unauthorized user", 401);
-        }
-
-        if (!data.category) {
-            throw new AppError("Category name is required", 400);
-        }
-
-        const existingCategory = await prisma.productCategory.findUnique({
-            where: {
-                category: data.category
-            }
-        });
-
-        if (existingCategory) {
-            throw new AppError("Category already exists", 409);
-        }
-
-        const newCategory = await prisma.productCategory.create({
-            data: {
-                category: data.category,
-                addedBy: userId,
-                last_updated: new Date()
-            }
-        });
-
-        return { category: newCategory};
+    return { category: newCategory };
 }
 
 const productApproval = async (userId, productId, data) => {
-    const userAuth = await prisma.product({
+    const userAuth = await prisma.product.findUnique({
         where: {
             id: userId
         }
@@ -330,7 +330,7 @@ const productApproval = async (userId, productId, data) => {
         throw new AppError("Unauthorized user", 403);
     }
 
-    if (userAuth.role !== "admin" && userAuth.role !=="staff") {
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
         throw new AppError("Unauthorized user", 401);
     }
 
@@ -338,7 +338,7 @@ const productApproval = async (userId, productId, data) => {
         throw new AppError("Field is required", 400);
     }
 
-    const existingProduct = await prisma.product({
+    const existingProduct = await prisma.product.findUnique({
         where: {
             id: productId
         }
@@ -352,7 +352,7 @@ const productApproval = async (userId, productId, data) => {
         where: {
             id: existingProduct.id
         },
-        data : {
+        data: {
             ...data
         }
     })
@@ -399,7 +399,7 @@ const productPublish = async (userId, productId) => {
         status = true
     }
 
-    const updatedProduct =  await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
         where: {
             id: productId
         },
@@ -431,7 +431,7 @@ const addToCart = async (userId, productId, data) => {
     if (!data.quantity || data.quantity <= 0) {
         throw new AppError("A valid quantity is required", 400);
     }
-    
+
 
     const existingProduct = await prisma.product.findUnique({
         where: {
@@ -442,11 +442,11 @@ const addToCart = async (userId, productId, data) => {
     if (!existingProduct) {
         throw new AppError("Product not found", 404);
     }
-    
-    const result = await prisma.$transaction( async (tx) => {
-    
+
+    const result = await prisma.$transaction(async (tx) => {
+
         if (existingProduct.quantity < data.quantity) {
-        throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
+            throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
         }
 
 
@@ -476,7 +476,7 @@ const addToCart = async (userId, productId, data) => {
     return result;
 }
 
-const editCart = async (userId, cartId) => {
+const editCartItem = async (userId, cartId) => {
 
     const userAuth = await prisma.user.findUnique({
         where: {
@@ -499,58 +499,58 @@ const editCart = async (userId, cartId) => {
     const result = await prisma.$transaction(async (tx) => {
 
         const existingCart = await tx.cart.findUnique({
-        where: {
-            id: cartId
+            where: {
+                id: cartId
+            }
+        })
+
+
+        if (!existingCart) {
+            throw new AppError("Cart item not found", 404);
         }
-    })
 
-    
-    if (!existingCart) {
-        throw new AppError("Cart item not found", 404);
-    }
-    
-    if (existingCart.userId !== userAuth.id) {
-        throw new AppError("Unauthorized user", 401);
-    }
-    
-    const existingProduct = await tx.product.findUnique({
-        where: {
-            id: existingCart.productId
+        if (existingCart.userId !== userAuth.id) {
+            throw new AppError("Unauthorized user", 401);
         }
-    })
 
-    if (!existingProduct) {
-        throw new AppError("Product not found", 404);
-    }
+        const existingProduct = await tx.product.findUnique({
+            where: {
+                id: existingCart.productId
+            }
+        })
 
-    const productPrice = existingProduct.newPrice ?? existingProduct.price
+        if (!existingProduct) {
+            throw new AppError("Product not found", 404);
+        }
 
-    const updatedCart = await tx.cart.update({
-        where: {
-            id: existingCart.id
-        },
-        data: {
-            quantity: data.quantity,
-            price: productPrice,
-            total_price: productPrice.mul(data.quantity)
-        },
-        include: {
-            user: {
-                omit: {
-                    password: true
-                }
+        const productPrice = existingProduct.newPrice ?? existingProduct.price
+
+        const updatedCart = await tx.cart.update({
+            where: {
+                id: existingCart.id
             },
-            order: true
-        }
-    })
+            data: {
+                quantity: data.quantity,
+                price: productPrice,
+                total_price: productPrice.mul(data.quantity)
+            },
+            include: {
+                user: {
+                    omit: {
+                        password: true
+                    }
+                },
+                order: true
+            }
+        })
 
-    return { cart: updatedCart };
+        return { cart: updatedCart };
     })
 
     return result;
 }
 
-const deleteCart = async (userId, cartId) => {
+const deleteCartItem = async (userId, cartId) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -590,8 +590,44 @@ const deleteCart = async (userId, cartId) => {
     });
 
     return result;
-
 }
+
+
+const getCart = async (userId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    const cartItems = await prisma.cart.findMany({
+        where: {
+            userId: userAuth.id,
+            orderId: null
+        }
+    })
+
+    if (cartItems.length === 0) {
+        throw new AppError("Cart is empty", 404);
+    }
+
+    const totalPrice = cartItems
+        .map(item => item.total_price)
+        .reduce((sum, price) => sum.add(price));
+
+    const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+    return { cart: cartItems, totalPrice, totalItems }
+}
+
 
 module.exports = {
     createProduct,
@@ -602,6 +638,7 @@ module.exports = {
     productApproval,
     productPublish,
     addToCart,
-    editCart,
-    deleteCart
+    editCartItem,
+    deleteCartItem,
+    getCart
 }

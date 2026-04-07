@@ -160,13 +160,14 @@ const create_category = async (req, res, next) => {
     }
  }  
 
- const edit_cart = async (req, res, next) => {
+ const edit_cartItem = async (req, res, next) => {
     try {
 
         const userId = req.user.id;
         const cartId = req.params.id;
+        const data = req.body;
 
-        const cart = await productService.editCart(userId, cartId);
+        const cart = await productService.editCartItem(userId, cartId, data);
 
         res.success(cart, "Cart successfully edited")
 
@@ -175,13 +176,25 @@ const create_category = async (req, res, next) => {
     }
  }
 
-const delete_cart = async (req, res, next) => {
+const delete_cartItem = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const cartId = req.params.id;
-        const result = await productService.deleteCart(userId, cartId);
+        const result = await productService.deleteCartItem(userId, cartId);
 
         res.success(result, "Cart item successfully deleted")
+    } catch (e) {
+        next(e);
+    }
+}
+
+const get_cart = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const cart = await productService.getCart(userId);
+        res.success(cart, "Cart retrieved successfully")
+
     } catch (e) {
         next(e);
     }
@@ -196,6 +209,7 @@ module.exports = {
     product_approval,
     product_publish,
     add_to_cart,
-    edit_cart,
-    delete_cart
+    edit_cartItem,
+    delete_cartItem,
+    get_cart
 }

@@ -57,7 +57,10 @@ const loginUser = async (data) => {
         throw new AppError("Invalid credentials", 401)
     }
 
-    await existingUser.update({
+    const user = await prisma.user.update({
+        where: {
+            id: existingUser.id
+        },
         data: {
             last_login: new Date()
         }

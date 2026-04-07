@@ -14,7 +14,7 @@ router.post('/add-category', authMiddleware, doubleCsrfProtection, validatedData
 router.patch('/product-approval/:id', authMiddleware, doubleCsrfProtection, productController.product_approval);
 router.patch('/product-status/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductApprovalSchema, productController.product_publish);
 router.post('/add-to-cart/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.add_to_cart);
-router.put('/edit-cart/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.edit_cart);
-router.delete('/delete-cart/:id', authMiddleware, doubleCsrfProtection, productController.delete_cart);
+router.put('/edit-cart-item/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.edit_cartItem);
+router.delete('/delete-cart-item/:id', authMiddleware, doubleCsrfProtection, productController.delete_cartItem);
 
 module.exports = router;

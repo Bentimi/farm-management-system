@@ -26,10 +26,10 @@ const login_user = async (req, res, next) => {
 
         // Short-lived access token
         const accessToken = JWT.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        
+
         // Long-lived refresh token
         const refreshToken = uuidv4();
-        
+
         // Store in Redis (7 days expiration)
         const SEVEN_DAYS = 7 * 24 * 60 * 60;
         await redisClient.set(`refresh_token:${refreshToken}`, String(user.id), { EX: SEVEN_DAYS });
@@ -45,11 +45,12 @@ const login_user = async (req, res, next) => {
         res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
         res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: SEVEN_DAYS * 1000 });
 
-        // Generate CSRF token automatically at login
-        generateToken(res, req);
+        // Generate and rotate CSRF token automatically at login
+        const csrfToken = generateToken(req, res, { overwrite: true });
 
-        res.success({ user, accessToken }, "Login successful");
+        res.success(user, "Login successful");
     } catch (e) {
+        console.log(e)
         next(e);
     }
 }
