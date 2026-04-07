@@ -175,7 +175,17 @@ const create_category = async (req, res, next) => {
     }
  }
 
-// const 
+const delete_cart = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const cartId = req.params.id;
+        const result = await productService.deleteCart(userId, cartId);
+
+        res.success(result, "Cart item successfully deleted")
+    } catch (e) {
+        next(e);
+    }
+}
 
 module.exports = {
     create_product,
@@ -186,5 +196,6 @@ module.exports = {
     product_approval,
     product_publish,
     add_to_cart,
-    edit_cart
+    edit_cart,
+    delete_cart
 }

@@ -550,6 +550,49 @@ const editCart = async (userId, cartId) => {
     return result;
 }
 
+const deleteCart = async (userId, cartId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        const existingCart = await tx.cart.findUnique({
+            where: {
+                id: cartId
+            }
+        });
+
+        if (!existingCart) {
+            throw new AppError("Cart item not found", 404);
+        }
+
+        if (existingCart.userId !== userAuth.id) {
+            throw new AppError("Unauthorized user", 401);
+        }
+
+        const deletedCart = await tx.cart.delete({
+            where: {
+                id: existingCart.id
+            }
+        });
+
+        return { cart: deletedCart };
+    });
+
+    return result;
+
+}
+
 module.exports = {
     createProduct,
     updateProduct,
@@ -559,5 +602,6 @@ module.exports = {
     productApproval,
     productPublish,
     addToCart,
-    editCart
+    editCart,
+    deleteCart
 }
