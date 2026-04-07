@@ -413,7 +413,7 @@ const productPublish = async (userId, productId) => {
     return { product: updatedProduct }
 }
 
-const addToCart = async (userId, data) => {
+const addToCart = async (userId, productId, data) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -435,7 +435,7 @@ const addToCart = async (userId, data) => {
 
     const existingProduct = await prisma.product.findUnique({
         where: {
-            id: data.productId
+            id: productId
         }
     })
 
@@ -459,11 +459,94 @@ const addToCart = async (userId, data) => {
                 quantity: data.quantity,
                 price: productPrice,
                 total_price: productPrice.mul(data.quantity)
+            },
+            include: {
+                user: {
+                    omit: {
+                        password: true
+                    }
+                },
+                order: true
             }
+
         })
 
         return { cart: cartItem }
     })
+    return result;
+}
+
+const editCart = async (userId, cartId) => {
+
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    if (!data.quantity || data.quantity <= 0) {
+        throw new AppError("A valid quantity is required", 400);
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+
+        const existingCart = await tx.cart.findUnique({
+        where: {
+            id: cartId
+        }
+    })
+
+    
+    if (!existingCart) {
+        throw new AppError("Cart item not found", 404);
+    }
+    
+    if (existingCart.userId !== userAuth.id) {
+        throw new AppError("Unauthorized user", 401);
+    }
+    
+    const existingProduct = await tx.product.findUnique({
+        where: {
+            id: existingCart.productId
+        }
+    })
+
+    if (!existingProduct) {
+        throw new AppError("Product not found", 404);
+    }
+
+    const productPrice = existingProduct.newPrice ?? existingProduct.price
+
+    const updatedCart = await tx.cart.update({
+        where: {
+            id: existingCart.id
+        },
+        data: {
+            quantity: data.quantity,
+            price: productPrice,
+            total_price: productPrice.mul(data.quantity)
+        },
+        include: {
+            user: {
+                omit: {
+                    password: true
+                }
+            },
+            order: true
+        }
+    })
+
+    return { cart: updatedCart };
+    })
+
     return result;
 }
 
@@ -475,5 +558,6 @@ module.exports = {
     createCategory,
     productApproval,
     productPublish,
-    addToCart
+    addToCart,
+    editCart
 }

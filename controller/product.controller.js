@@ -144,15 +144,38 @@ const create_category = async (req, res, next) => {
  const add_to_cart = async (req, res, next) => {
     try {
         const userId = req.user.id;
+        const productId = req.params.id
         const data = req.body;
 
-        const cart = await productService.addToCart(userId, data);
-        res.success(cart, "Product added to cart successfully");
+        const cart = await productService.addToCart(userId, productId, data);
+        res.status(201).json({
+            status: "success",
+            message: "Product added to cart successfully",
+            data: cart
+            
+        });
+
+    } catch (e) {
+        next(e);
+    }
+ }  
+
+ const edit_cart = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const cartId = req.params.id;
+
+        const cart = await productService.editCart(userId, cartId);
+
+        res.success(cart, "Cart successfully edited")
 
     } catch (e) {
         next(e);
     }
  }
+
+// const 
 
 module.exports = {
     create_product,
@@ -162,5 +185,6 @@ module.exports = {
     create_category,
     product_approval,
     product_publish,
-    add_to_cart
+    add_to_cart,
+    edit_cart
 }

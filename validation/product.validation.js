@@ -25,7 +25,6 @@ const productApprovalSchema = joi.object({
 })
 
 const productCartSchema = joi.object({
-    productId: joi.string().trim().required(),
     quantity: joi.number()
     .integer()
     .positive()
