@@ -36,7 +36,7 @@ model User {
   gender         genderStatus?
   marital_status maritalStatus?
   role           Role           @default(user)
-  active         Boolean        @default(false)
+  active         Boolean        @default(true)
   password       String
 
   last_login  DateTime?
