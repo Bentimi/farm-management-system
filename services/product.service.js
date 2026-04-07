@@ -443,17 +443,28 @@ const addToCart = async (userId, data) => {
         throw new AppError("Product not found", 404);
     }
     
-    if (existingProduct.quantity < data.quantity) {
-    throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
-    }
-
     const result = await prisma.$transaction( async (tx) => {
+    
+        if (existingProduct.quantity < data.quantity) {
+        throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
+        }
 
-        // const cartItem
 
+        const productPrice = existingProduct.newPrice ?? existingProduct.price
 
+        const cartItem = await tx.cart.create({
+            data: {
+                productId: existingProduct.id,
+                userId: userAuth.id,
+                quantity: data.quantity,
+                price: productPrice,
+                total_price: productPrice.mul(data.quantity)
+            }
+        })
+
+        return { cart: cartItem }
     })
-
+    return result;
 }
 
 module.exports = {

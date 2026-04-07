@@ -42,9 +42,11 @@ model User {
   last_login  DateTime?
   date_joined DateTime  @default(now())
 
-  uploadedProducts Product[] @relation("UploadedProducts")
-  updatedProducts  Product[] @relation("UpdatedProducts")
-  approvedProducts Product[] @relation("ApprovedProducts")
+  updatedProducts  Product[]        @relation("UpdatedProducts")
+  approvedProducts Product[]        @relation("ApprovedProducts")
+  cartItems        Cart[]           @relation("CartUser")
+  orders           Order[]          @relation("OrderUser")
+  invoices         ProductInvoice[] @relation("InvoiceUser")
 }
 
 enum productStatus {
@@ -55,19 +57,16 @@ enum productStatus {
 }
 
 model Product {
-  id          String           @id @default(uuid())
+  id          String          @id @default(uuid())
   name        String?
-  price       Decimal          @db.Decimal(10, 2)
-  newPrice    Decimal          @db.Decimal(10, 2)
+  price       Decimal         @db.Decimal(10, 2)
+  newPrice    Decimal?        @db.Decimal(10, 2)
   description String?
-  quantity    Int?             @default(0)
-  draft       Boolean          @default(true)
-  approved    productStatus    @default(pending)
-  categoryId  String?
-  category    ProductCategory? @relation(fields: [categoryId], references: [id])
-
-  uploadedById String?
-  uploadedBy   User?   @relation("UploadedProducts", fields: [uploadedById], references: [id])
+  quantity    Int             @default(0)
+  draft       Boolean         @default(true)
+  approved    productStatus   @default(pending)
+  categoryId  String
+  category    ProductCategory @relation(fields: [categoryId], references: [id])
 
   updatedById String?
   updatedBy   User?   @relation("UpdatedProducts", fields: [updatedById], references: [id])
@@ -81,12 +80,15 @@ model Product {
 
   last_updated DateTime?
   createdAt    DateTime  @default(now())
+
+  carts Cart[] @relation("cartProducts")
+
+  @@index([categoryId])
 }
 
 model ProductCategory {
   id       String  @id @default(uuid())
   category String? @unique
-  addedBy  String?
 
   createdAt DateTime @default(now())
 
@@ -96,8 +98,63 @@ model ProductCategory {
 model ProductDescription {
   id          String   @id @default(uuid())
   photo       String[]
-  productId   String?
-  product     Product? @relation("Product", fields: [productId], references: [id])
+  productId   String
+  product     Product  @relation("Product", fields: [productId], references: [id])
   description String?
   createdAt   DateTime @default(now())
+}
+
+model Cart {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation("cartProducts", fields: [productId], references: [id])
+
+  userId String
+  user   User   @relation("CartUser", fields: [userId], references: [id])
+
+  orderId     String?
+  order       Order?           @relation("cartOrder", fields: [orderId], references: [id])
+  quantity    Int              @default(1)
+  price       Decimal          @db.Decimal(10, 2)
+  total_price Decimal          @db.Decimal(10, 2)
+  createdAt   DateTime         @default(now())
+  invoices    ProductInvoice[] @relation("InvoiceCart")
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum orderStatus {
+  pending
+  processing
+  successful
+}
+
+model Order {
+  id            String @id @default(uuid())
+  orderedUserId String
+  user          User   @relation("OrderUser", fields: [orderedUserId], references: [id])
+
+  purchased   Boolean      @default(false)
+  total_price Decimal      @db.Decimal(10, 2)
+  txRef       String?
+  status      orderStatus?
+  orderedDate DateTime     @default(now())
+
+  carts Cart[] @relation("cartOrder")
+
+  @@index([orderedUserId])
+}
+
+model ProductInvoice {
+  id            String  @id @default(uuid())
+  invoiceUserId String
+  user          User    @relation("InvoiceUser", fields: [invoiceUserId], references: [id])
+  cartId        String
+  cart          Cart    @relation("InvoiceCart", fields: [cartId], references: [id])
+  productPrice  Decimal @db.Decimal(10, 2)
+
+  @@index([invoiceUserId])
+  @@index([cartId])
 }

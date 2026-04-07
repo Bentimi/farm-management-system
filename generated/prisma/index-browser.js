@@ -146,7 +146,6 @@ exports.Prisma.ProductScalarFieldEnum = {
   draft: 'draft',
   approved: 'approved',
   categoryId: 'categoryId',
-  uploadedById: 'uploadedById',
   updatedById: 'updatedById',
   approvedById: 'approvedById',
   photo: 'photo',
@@ -157,7 +156,6 @@ exports.Prisma.ProductScalarFieldEnum = {
 exports.Prisma.ProductCategoryScalarFieldEnum = {
   id: 'id',
   category: 'category',
-  addedBy: 'addedBy',
   createdAt: 'createdAt'
 };
 
@@ -167,6 +165,34 @@ exports.Prisma.ProductDescriptionScalarFieldEnum = {
   productId: 'productId',
   description: 'description',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.CartScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  orderId: 'orderId',
+  quantity: 'quantity',
+  price: 'price',
+  total_price: 'total_price',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  orderedUserId: 'orderedUserId',
+  purchased: 'purchased',
+  total_price: 'total_price',
+  txRef: 'txRef',
+  status: 'status',
+  orderedDate: 'orderedDate'
+};
+
+exports.Prisma.ProductInvoiceScalarFieldEnum = {
+  id: 'id',
+  invoiceUserId: 'invoiceUserId',
+  cartId: 'cartId',
+  productPrice: 'productPrice'
 };
 
 exports.Prisma.SortOrder = {
@@ -209,11 +235,20 @@ exports.productStatus = exports.$Enums.productStatus = {
   review: 'review'
 };
 
+exports.orderStatus = exports.$Enums.orderStatus = {
+  pending: 'pending',
+  processing: 'processing',
+  successful: 'successful'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Product: 'Product',
   ProductCategory: 'ProductCategory',
-  ProductDescription: 'ProductDescription'
+  ProductDescription: 'ProductDescription',
+  Cart: 'Cart',
+  Order: 'Order',
+  ProductInvoice: 'ProductInvoice'
 };
 
 /**

@@ -12,6 +12,7 @@ router.post('/description/:id', authMiddleware, doubleCsrfProtection, validatedD
 router.put('/description/:productId/:descriptionId', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, upload.array('photo', 10), productController.update_product_description);
 router.post('/add-category', authMiddleware, doubleCsrfProtection, validatedData.validatedProductCategorySchema, productController.create_category);
 router.patch('/product-approval/:id', authMiddleware, doubleCsrfProtection, productController.product_approval);
-router.patch('/product-status/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductApprovalSchema, productController.product_publish)
+router.patch('/product-status/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductApprovalSchema, productController.product_publish);
+router.post('/add-to-cart/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.add_to_cart);
 
 module.exports = router;

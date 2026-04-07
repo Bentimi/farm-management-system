@@ -41,5 +41,6 @@ module.exports = {
     validatedProductSchema: validate(productSchema),
     validatedProductDescriptionSchema: validate(productDescriptionSchema),
     validatedProductCategorySchema: validate(productCategorySchema),
-    validatedProductApprovalSchema: validate(productApprovalSchema)
+    validatedProductApprovalSchema: validate(productApprovalSchema),
+    validatedCartSchema: validate(productCartSchema)
 }
