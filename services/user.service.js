@@ -283,6 +283,9 @@ const getUsers = async (userId, page, pageSize) => {
         },
     })
 
+    if (!users || users.length === 0) {
+        throw new AppError("No user found", 404)
+    }
 
     return users;
 
