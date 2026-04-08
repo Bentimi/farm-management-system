@@ -66,7 +66,7 @@ const loginUser = async (data) => {
         }
     })
 
-    const { password, ...userWithoutPassword } = existingUser;
+    const { password, ...userWithoutPassword } = user;
 
     return { user: userWithoutPassword };
 
@@ -272,6 +272,22 @@ const roleAllocation = async (userId, targetId, data) => {
 
 }
 
+const getUsers = async (userId, page, pageSize) => {
+
+
+    const users = await prisma.user.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        omit: {
+            password: true
+        },
+    })
+
+
+    return users;
+
+}
+
 module.exports = {
     createUser,
     loginUser,
@@ -279,5 +295,6 @@ module.exports = {
     updateUser,
     userActiveStatus,
     changePassword,
-    roleAllocation
+    roleAllocation,
+    getUsers
 }

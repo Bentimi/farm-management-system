@@ -8,6 +8,7 @@ const { xss } = require('express-xss-sanitizer');
 const { errorHandler } = require("./middleware/errorHandling.middleware");
 const { responseHandler } = require("./middleware/responseHandler.middleware");
 const userRoutes = require("./routes/user.route");
+const productRoutes = require("./routes/product.route");
 require("dotenv").config();
 
 const app = express();
@@ -35,7 +36,8 @@ app.get('/', (req, res) => {
     res.send("Welcome to Agritronix server");
 })
 
-app.use('/user', userRoutes)
+app.use('/user', userRoutes);
+app.use('/product', productRoutes);
 
 
 app.use(errorHandler);

@@ -191,7 +191,6 @@ const delete_cartItem = async (req, res, next) => {
 const get_cart = async (req, res, next) => {
     try {
         const userId = req.user.id;
-
         const cart = await productService.getCart(userId);
         res.success(cart, "Cart retrieved successfully")
 

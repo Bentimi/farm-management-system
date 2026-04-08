@@ -139,6 +139,21 @@ const role_allocation = async (req, res, next) => {
     }
 }
 
+const get_users = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+
+        const users = await userService.getUsers(userId, page, pageSize);
+        res.success(users, "Users retrieved successfully");
+
+    } catch (e) {
+        next(e);
+    }
+}
+
 
 module.exports = {
     create_user,
@@ -148,5 +163,6 @@ module.exports = {
     update_user,
     userActive_status,
     change_password,
-    role_allocation
+    role_allocation,
+    get_users
 };
