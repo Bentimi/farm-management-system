@@ -274,6 +274,23 @@ const roleAllocation = async (userId, targetId, data) => {
 
 const getUsers = async (userId, page, pageSize) => {
 
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Account is inactive", 403)
+    }
+
+    if (!userAuth.role === "admin" || !userAuth.role === "staff") {
+        throw new AppError("Unauthorized user", 401)
+    }
 
     const users = await prisma.user.findMany({
         skip: (page - 1) * pageSize,

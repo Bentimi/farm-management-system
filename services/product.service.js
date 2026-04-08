@@ -629,6 +629,27 @@ const getCart = async (userId) => {
 }
 
 
+const getProducts = async (userId, page, pageSize) => {
+
+    
+
+
+    const products = await prisma.product.findMany({
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+            carts: true
+        }
+    })
+
+    if (!products || products.length === 0) {
+        throw new AppError("No products found", 404);
+    }
+
+    return products;
+
+}
+
 module.exports = {
     createProduct,
     updateProduct,
@@ -640,5 +661,6 @@ module.exports = {
     addToCart,
     editCartItem,
     deleteCartItem,
-    getCart
+    getCart,
+    getProducts
 }

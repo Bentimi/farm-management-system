@@ -199,6 +199,19 @@ const get_cart = async (req, res, next) => {
     }
 }
 
+const get_products =  async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
+        const products = await productService.getProducts(userId, page, pageSize);
+        res.success(products, "Products retrieved successfully")
+    } catch(e) {
+        next(e);
+    }
+}
+
 module.exports = {
     create_product,
     update_product,
@@ -210,5 +223,6 @@ module.exports = {
     add_to_cart,
     edit_cartItem,
     delete_cartItem,
-    get_cart
+    get_cart,
+    get_products
 }
