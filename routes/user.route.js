@@ -10,11 +10,11 @@ router.post('/create-user', validatedData.validatedUserSchema, userController.cr
 router.post('/login', validatedData.validatedLoginSchema, userController.login_user);
 
 router.post('/logout', authMiddleware, doubleCsrfProtection, userController.logout_user);
-router.get('/:id', authMiddleware, doubleCsrfProtection, userController.user_profile);
-router.put('/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedUpdateSchema, userController.update_user);
-router.patch('/active-status/:id', authMiddleware, doubleCsrfProtection, userController.userActive_status);
-router.put('change-password', authMiddleware, doubleCsrfProtection, validatedData.validatedChangePasswordSchema, userController.change_password);
-router.put('/role/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedRoleSchema, userController.role_allocation);
+router.put('/change-password', authMiddleware, doubleCsrfProtection, validatedData.validatedChangePasswordSchema, userController.change_password);
 router.get('/all-users', authMiddleware, doubleCsrfProtection, userController.get_users);
+router.patch('/active-status/:id', authMiddleware, doubleCsrfProtection, userController.userActive_status);
+router.put('/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedUpdateSchema, userController.update_user);
+router.get('/:id', authMiddleware, doubleCsrfProtection, userController.user_profile);
+router.put('/role/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedRoleSchema, userController.role_allocation);
 
 module.exports = router;

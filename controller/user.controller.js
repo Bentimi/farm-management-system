@@ -145,8 +145,9 @@ const get_users = async (req, res, next) => {
         const userId = req.user.id;
         const page = parseInt(req.query.page) || 1;
         const pageSize = parseInt(req.query.pageSize) || 10;
-
+        console.log(req.user)
         const users = await userService.getUsers(userId, page, pageSize);
+        
         res.success(users, "Users retrieved successfully");
 
     } catch (e) {
@@ -155,7 +156,7 @@ const get_users = async (req, res, next) => {
 }
 
 
-module.exports = {
+module.exports = { 
     create_user,
     login_user,
     logout_user,

@@ -10,7 +10,9 @@ const createUser = async (data) => {
     }
 
     const existingEmail =  await prisma.user.findUnique({
-        email: data.email
+        where: {
+            email: data.email
+        }
     })
 
     if (existingEmail) {
@@ -95,6 +97,10 @@ const userProfile = async (userId, targetId) => {
             password: true
         }
     })
+
+    if (!profile || profile.length === 0) {
+        throw new AppError("Profile not found", 404)
+    }
 
     return profile;
 }
@@ -288,8 +294,8 @@ const getUsers = async (userId, page, pageSize) => {
         throw new AppError("Account is inactive", 403)
     }
 
-    if (!userAuth.role === "admin" || !userAuth.role === "staff") {
-        throw new AppError("Unauthorized user", 401)
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 403)
     }
 
     const users = await prisma.user.findMany({
@@ -297,8 +303,12 @@ const getUsers = async (userId, page, pageSize) => {
         take: pageSize,
         omit: {
             password: true
-        },
+        }
     })
+
+    console.log(users)
+
+    console.log("Users fetched successfully")
 
     if (!users || users.length === 0) {
         throw new AppError("No user found", 404)

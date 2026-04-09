@@ -59,7 +59,7 @@ enum productStatus {
 
 model Product {
   id            String      @id   @default(uuid())
-  name          String?
+  name          String?     
   price         Decimal     @db.Decimal(10, 2)
   newPrice      Decimal?     @db.Decimal(10, 2)
   description   String?

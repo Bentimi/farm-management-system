@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError.utils");
 const cloudinary = require("../config/cloudinary.config");
 const userValidation = require("../validation/user.validation");
 
-const createProduct = async (userId, data, file) => {
+const createProduct = async (userId, data) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -26,11 +26,11 @@ const createProduct = async (userId, data, file) => {
         throw new AppError("All fields are required", 400)
     }
 
-    if (!file) {
-        throw new AppError("Product image is required", 400)
-    }
+    // if (!file) {
+    //     throw new AppError("Product image is required", 400)
+    // }
 
-    const existingProduct = await prisma.product.findUnique({
+    const existingProduct = await prisma.product.findFirst({
         where: {
             name: data.name
         }
@@ -47,7 +47,7 @@ const createProduct = async (userId, data, file) => {
     })
 
     if (!exsitingCategory) {
-        throw new AppError("Category not found", 404)
+        throw new AppError("Category does not exist", 404)
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -58,28 +58,49 @@ const createProduct = async (userId, data, file) => {
                 description: data.description,
                 price: data.price,
                 quantity: data.quantity,
-                category: data.category,
-                photo: data.image,
-                uploadedBy: userId,
+                categoryId: exsitingCategory.id,
+                // photo: data.image,
+                // uploadedBy: userId,
                 last_updated: new Date()
+            },
+            include: {
+                category: true
             }
         })
 
-        const uploadProduct = cloudinary.uploader.upload(file.path, {
-            folder: "products",
-            public_id: `product_${newProduct.id}`,
-            resource_type: "image"
-        })
-
-        const updatedProduct = await tx.product.update({
-            where: { id: newProduct.id },
-            data: { photo: uploadProduct.secure_url }
-        });
-
-        return updatedProduct;
+        
+        return { product: newProduct };
 
     })
     return result;
+}
+
+const uploadProductImage = async (file, productId, userId) => {
+
+    // console.log(file.path)
+
+    const uploadProduct = await cloudinary.uploader.upload(file.path, {
+            folder: "products",
+            public_id: `product_${productId}`
+        })
+
+        const updatedProduct = await prisma.product.update({
+            where: { id: productId },
+            data: { 
+                photo: uploadProduct.secure_url,
+                updatedById: userId,
+                last_updated: new Date()
+            },
+            include: {
+                category: true,
+                updatedBy: {
+                    omit: {
+                        password: true
+                    }
+                }
+            }
+        });
+    return { product: updatedProduct }
 }
 
 const updateProduct = async (userId, targetId, data, file) => {
@@ -306,9 +327,7 @@ const createCategory = async (userId, data) => {
 
     const newCategory = await prisma.productCategory.create({
         data: {
-            category: data.category,
-            addedBy: userId,
-            last_updated: new Date()
+            category: data.category
         }
     });
 
@@ -631,20 +650,36 @@ const getCart = async (userId) => {
 
 const getProducts = async (userId, page, pageSize) => {
 
-    
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
 
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 403)
+    }
 
     const products = await prisma.product.findMany({
         skip: (page - 1) * pageSize,
         take: pageSize,
         include: {
+            category: true,
             carts: true
         }
     })
 
-    if (!products || products.length === 0) {
-        throw new AppError("No products found", 404);
-    }
+    // if (!products || products.length === 0) {
+    //     throw new AppError("No product found", 404);
+    // }
 
     return products;
 
@@ -652,6 +687,7 @@ const getProducts = async (userId, page, pageSize) => {
 
 module.exports = {
     createProduct,
+    uploadProductImage,
     updateProduct,
     addDescription,
     updateProductDescription,

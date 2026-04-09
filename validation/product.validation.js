@@ -6,6 +6,10 @@ const productSchema = joi.object({
     price: joi.number().positive().required(),
     quantity: joi.number().integer().positive().min(1).required(),
     description: joi.string().trim().required(),
+    category: joi.string().trim().required()
+})
+
+const productImageSchema = joi.object({
     photo: joi.any()
     .required()
     .description('Image file')
@@ -38,6 +42,7 @@ const productCartSchema = joi.object({
 
 module.exports = {
     validatedProductSchema: validate(productSchema),
+    validatedProductImageSchema: validate(productImageSchema),
     validatedProductDescriptionSchema: validate(productDescriptionSchema),
     validatedProductCategorySchema: validate(productCategorySchema),
     validatedProductApprovalSchema: validate(productApprovalSchema),

@@ -5,9 +5,9 @@ const create_product = async (req, res, next) => {
 
         const userId = req.user.id;
         const data = req.body;
-        const file = req.file;
+        // const file = req.file;
 
-        const product = await productService.createProduct(userId, data, file);
+        const product = await productService.createProduct(userId, data);
         res.status(201).json({
             status: "success",
             message: "Product created successfully",
@@ -15,9 +15,31 @@ const create_product = async (req, res, next) => {
         })
 
     } catch (e) {
+        console.log(e)
         next(e);
     }
 }
+
+const product_image = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const productId = req.params.id;
+        const file = req.file;
+
+        const product = await productService.uploadProductImage(file, productId, userId);
+        res.status(201).json({
+            status: "success",
+            message: "Product image uploaded successfully",
+            data: product
+        })
+
+    } catch (e) {
+        console.log(e)
+        next(e);
+    }
+}
+
 
 const update_product = async (req, res, next) => {
     try {
@@ -214,6 +236,7 @@ const get_products =  async (req, res, next) => {
 
 module.exports = {
     create_product,
+    product_image,
     update_product,
     add_description,
     update_product_description,
