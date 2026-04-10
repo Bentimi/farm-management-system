@@ -103,7 +103,7 @@ const uploadProductImage = async (file, productId, userId) => {
     return { product: updatedProduct }
 }
 
-const updateProduct = async (userId, targetId, data, file) => {
+const updateProduct = async (userId, targetId, data) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -122,6 +122,7 @@ const updateProduct = async (userId, targetId, data, file) => {
     if (userAuth.role !== "admin" && userAuth.role !== "staff") {
         throw new AppError("Unauthorized user", 401);
     }
+    
 
     const existingProduct = await prisma.product.findUnique({
         where: {
@@ -133,21 +134,15 @@ const updateProduct = async (userId, targetId, data, file) => {
         throw new AppError("Product not found", 404);
     }
 
-    const uploadProduct = cloudinary.uploader.upload(file.path, {
-        folder: "products",
-        public_id: `product_${existingProduct.id}`,
-        resource_type: "image"
-    })
-
     const updatedProduct = await prisma.product.update({
         where: {
             id: existingProduct.id
         },
         data: {
-            photo: uploadProduct.secure_url,
             category: data.category,
             description: data.description,
             name: data.name,
+            updatedById: userAuth.id,
             last_updated: new Date()
         }
     })

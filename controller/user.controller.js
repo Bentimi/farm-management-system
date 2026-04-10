@@ -45,6 +45,7 @@ const login_user = async (req, res, next) => {
         res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
         res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: SEVEN_DAYS * 1000 });
 
+
         // Generate and rotate CSRF token automatically at login
         const csrfToken = generateToken(req, res, { overwrite: true });
 
@@ -145,7 +146,7 @@ const get_users = async (req, res, next) => {
         const userId = req.user.id;
         const page = parseInt(req.query.page) || 1;
         const pageSize = parseInt(req.query.pageSize) || 10;
-        console.log(req.user)
+        // console.log(req.user)
         const users = await userService.getUsers(userId, page, pageSize);
         
         res.success(users, "Users retrieved successfully");

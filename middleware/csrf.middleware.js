@@ -15,7 +15,7 @@ function generateToken(req, res) {
     const isProduction = process.env.NODE_ENV === "production";
     
     res.cookie("x-csrf-token", csrfToken, {
-        httpOnly: true,
+        httpOnly: false,
         secure: isProduction,
         sameSite: "strict",
         path: "/",

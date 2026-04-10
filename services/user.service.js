@@ -59,6 +59,10 @@ const loginUser = async (data) => {
         throw new AppError("Invalid credentials", 401)
     }
 
+    if (!existingUser.active) {
+        throw new AppError("Account not activated", 403)
+    }
+
     const user = await prisma.user.update({
         where: {
             id: existingUser.id
@@ -85,7 +89,7 @@ const userProfile = async (userId, targetId) => {
         throw new AppError("Unauthorized user", 401)
     }
 
-    if (!userAuth.id === targetId || (!userAuth.role === "admin" || !userAuth.role === "staff")) {
+    if (userAuth.id !== targetId && userAuth.role !== "admin" && userAuth.role !== "staff") {
         throw new AppError("Unauthorized user", 401)
     }
 
@@ -116,7 +120,7 @@ const updateUser = async (userId, targetId, data) => {
         throw new AppError("Unauthorized user", 401)
     }
 
-    if (!userAuth.id === targetId || (!userAuth.role === "admin" || !userAuth.role === "staff")) {
+    if (userAuth.id !== targetId && userAuth.role !== "admin" && userAuth.role !== "staff") {
         throw new AppError("Unauthorized user", 401)
     }
 
@@ -151,7 +155,7 @@ const userActiveStatus = async (userId, targetId) => {
         throw new AppError("Unauthorized user", 401)
     }
 
-    if (!userAuth.id === targetId || (!userAuth.role === "admin" || !userAuth.role === "staff")) {
+    if (userAuth.id !== targetId && userAuth.role !== "admin" && userAuth.role !== "staff") {
         throw new AppError("Unauthorized user", 401)
     }
 
@@ -165,29 +169,19 @@ const userActiveStatus = async (userId, targetId) => {
         throw new AppError("User not found", 404)
     }
 
-    if (user.active) {
-        await prisma.user.update({
-            where: {
-                id: targetId
-            },
-            data: {
-                active: false
-            }
-        })
-    } else {
-        await prisma.user.update({
-            where: {
-                id: targetId
-            },
-            data: {
-                active: true
-            }
-        })
-    }
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: targetId
+        },
+        data: {
+            active: !user.active
+        },
+        omit: {
+            password: true
+        }
+    })
 
-    const { password, ...userWithoutPassword } = user;
-
-    return {data: userWithoutPassword};
+    return {data: updatedUser};
 }
 
 const changePassword = async (userId, data) => {
@@ -306,13 +300,13 @@ const getUsers = async (userId, page, pageSize) => {
         }
     })
 
-    console.log(users)
+    // console.log(users)
 
-    console.log("Users fetched successfully")
+    // console.log("Users fetched successfully")
 
-    if (!users || users.length === 0) {
-        throw new AppError("No user found", 404)
-    }
+    // if (!users || users.length === 0) {
+    //     throw new AppError("No user found", 404)
+    // }
 
     return users;
 
