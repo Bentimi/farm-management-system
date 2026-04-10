@@ -4,9 +4,11 @@ const { validate } = require("../middleware/validateData.middlieware");
 const productSchema = joi.object({
     name: joi.string().trim().required(),
     price: joi.number().positive().required(),
+    newPrice: joi.number().positive().optional(),
     quantity: joi.number().integer().positive().min(1).required(),
-    description: joi.string().trim().required(),
-    category: joi.string().trim().required()
+    categoryId: joi.string().trim().required(),
+    draft: joi.boolean().optional(),
+    approved: joi.string().valid("pending", "approved", "rejected", "review").optional()
 })
 
 const productImageSchema = joi.object({

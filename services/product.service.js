@@ -22,13 +22,9 @@ const createProduct = async (userId, data) => {
         throw new AppError("Inactive user", 403)
     }
 
-    if (!data.name || !data.description || !data.price || !data.quantity || !data.category) {
+    if (!data.name || !data.price || !data.quantity || !data.categoryId) {
         throw new AppError("All fields are required", 400)
     }
-
-    // if (!file) {
-    //     throw new AppError("Product image is required", 400)
-    // }
 
     const existingProduct = await prisma.product.findFirst({
         where: {
@@ -40,13 +36,15 @@ const createProduct = async (userId, data) => {
         throw new AppError("Product already exists", 409)
     }
 
-    const exsitingCategory = await prisma.productCategory.findUnique({
+    // console.log(data.categoryId)
+
+    const existingCategory = await prisma.productCategory.findUnique({
         where: {
-            category: data.category
+            id: data.categoryId
         }
     })
 
-    if (!exsitingCategory) {
+    if (!existingCategory) {
         throw new AppError("Category does not exist", 404)
     }
 
@@ -55,16 +53,23 @@ const createProduct = async (userId, data) => {
         const newProduct = await tx.product.create({
             data: {
                 name: data.name,
-                description: data.description,
+                description: '',
                 price: data.price,
+                newPrice: data.newPrice || null,
                 quantity: data.quantity,
-                categoryId: exsitingCategory.id,
-                // photo: data.image,
-                // uploadedBy: userId,
+                categoryId: existingCategory.id,
+                draft: true,
+                approved: data.approved || 'pending',
+                updatedById: userId,
                 last_updated: new Date()
             },
             include: {
-                category: true
+                category: true,
+                updatedBy: {
+                    omit: {
+                        password: true
+                    }
+                }
             }
         })
 
@@ -103,13 +108,12 @@ const uploadProductImage = async (file, productId, userId) => {
     return { product: updatedProduct }
 }
 
-const updateProduct = async (userId, targetId, data) => {
+const updateProduct = async (userId, targetId, data, file) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
         }
     })
-
 
     if (!userAuth) {
         throw new AppError("Unauthorized user", 401);
@@ -123,7 +127,6 @@ const updateProduct = async (userId, targetId, data) => {
         throw new AppError("Unauthorized user", 401);
     }
     
-
     const existingProduct = await prisma.product.findUnique({
         where: {
             id: targetId
@@ -134,21 +137,53 @@ const updateProduct = async (userId, targetId, data) => {
         throw new AppError("Product not found", 404);
     }
 
-    const updatedProduct = await prisma.product.update({
-        where: {
-            id: existingProduct.id
-        },
-        data: {
-            category: data.category,
-            description: data.description,
+    const result = await prisma.$transaction(async (tx) => {
+
+        const existingCategory = await tx.productCategory.findUnique({
+            where: {
+                id: data.categoryId
+            }
+        })
+
+        if (!existingCategory) {
+            throw new AppError("Category do not exist", 404)
+        }
+
+        const updateData = {
             name: data.name,
+            description: data.description,
+            price: data.price,
+            newPrice: data.newPrice || null,
+            quantity: data.quantity,
+            categoryId: existingCategory.id,
+            draft: data.draft !== undefined ? data.draft : existingProduct.draft,
+            approved: data.approved || existingProduct.approved,
+            approvedById: userAuth.id,
             updatedById: userAuth.id,
             last_updated: new Date()
-        }
-    })
+        };
 
-    return updatedProduct;
 
+
+        const updatedProduct = await tx.product.update({
+            where: {
+                id: existingProduct.id
+            },
+            data: updateData,
+            include: {
+                category: true,
+                updatedBy: {
+                    omit: {
+                        password: true
+                    }
+                }
+            }
+        });
+
+        return updatedProduct;
+    });
+
+    return result;
 }
 
 const addDescription = async (userId, productId, data, files) => {
@@ -164,14 +199,6 @@ const addDescription = async (userId, productId, data, files) => {
 
     if (!userAuth.active) {
         throw new AppError("Inactive user", 403);
-    }
-
-    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
-        throw new AppError("Unauthorized user", 401);
-    }
-
-    if (!files) {
-        throw new AppError("At least one product description image is required", 400);
     }
 
     if (!data.description) {
@@ -190,28 +217,47 @@ const addDescription = async (userId, productId, data, files) => {
 
     const result = await prisma.$transaction(async (tx) => {
 
-        const uploadPhotos = await Promise.all(
-            files.map((file, index) =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "product_descriptions",
-                    public_id: `product_${productId}_description_${Date.now()}_${index}`,
-                    resource_type: "image"
-                })
-            )
-        );
+        let photoUrl = existingProduct.photo;
+        
+        // Handle file uploads if provided
+        if (files && files.length > 0) {
+            const uploadPhotos = await Promise.all(
+                files.map((file, index) =>
+                    cloudinary.uploader.upload(file.path, {
+                        folder: index === 0 ? "products" : "product_descriptions",
+                        public_id: `product_${productId}_${Date.now()}_${index}`,
+                        resource_type: "image"
+                    })
+                )
+            );
 
-        const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
+            // First image is product photo
+            if (uploadPhotos.length > 0) {
+                photoUrl = uploadPhotos[0].secure_url;
+            }
+        }
 
-        const addDescription = await tx.productDescription.create({
+        // Update product with description and photo
+        const updatedProduct = await tx.product.update({
+            where: {
+                id: productId
+            },
             data: {
-                productId: productId,
                 description: data.description,
-                photo: updatedPhotos,
+                photo: photoUrl,
                 last_updated: new Date()
+            },
+            include: {
+                category: true,
+                updatedBy: {
+                    omit: {
+                        password: true
+                    }
+                }
             }
         });
 
-        return { description: addDescription };
+        return { product: updatedProduct };
     });
 
     return result;
@@ -692,7 +738,8 @@ const getProducts = async (userId, page, pageSize) => {
         take: pageSize,
         include: {
             category: true,
-            carts: true
+            carts: true,
+            descriptions: true
         }
     })
 
