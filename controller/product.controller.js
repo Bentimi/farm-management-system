@@ -234,6 +234,16 @@ const get_products =  async (req, res, next) => {
     }
 }
 
+const get_categories = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const categories = await productService.getCategories(userId);
+        res.success(categories, "Categories retrieved successfully")
+    } catch(e) {
+        next(e);
+    }
+}
+
 module.exports = {
     create_product,
     product_image,
@@ -247,5 +257,6 @@ module.exports = {
     edit_cartItem,
     delete_cartItem,
     get_cart,
-    get_products
+    get_products,
+    get_categories
 }
