@@ -6,8 +6,10 @@ const create_product = async (req, res, next) => {
         const userId = req.user.id;
         const data = req.body;
         // const file = req.file;
+        const file = req.file; // Added
 
-        const product = await productService.createProduct(userId, data);
+        // const product = await productService.createProduct(userId, data);
+        const product = await productService.createProduct(userId, data, file);
         res.status(201).json({
             status: "success",
             message: "Product created successfully",
@@ -67,8 +69,19 @@ const add_description = async (req, res, next) => {
         const userId = req.user.id;
         const productId = req.params.id;
         const data = req.body;
+        const files = req.files || []; // Added for bulk uploads
 
-        const product = await productService.addDescription(userId, productId, data);
+        if (data.retainedImages && typeof data.retainedImages === 'string') {
+            try {
+                data.retainedImages = JSON.parse(data.retainedImages);
+            } catch (e) {
+                // If it fails to parse, default it or ignore
+                data.retainedImages = [];
+            }
+        }
+
+        // const product = await productService.addDescription(userId, productId, data);
+        const product = await productService.addDescription(userId, productId, data, files);
         res.success(
             product, 
             "Product description added successfully");

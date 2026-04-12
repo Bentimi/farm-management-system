@@ -7,7 +7,8 @@ const productSchema = joi.object({
     newPrice: joi.number().positive().optional(),
     quantity: joi.number().integer().positive().min(1).required(),
     categoryId: joi.string().trim().required(),
-    coverDescription: joi.string().trim().optional(),
+    description: joi.string().trim().optional().allow(''),
+    coverDescription: joi.string().trim().optional().allow(''),
     draft: joi.boolean().optional(),
     approved: joi.string().valid("pending", "approved", "rejected", "review").optional()
 })
@@ -20,6 +21,7 @@ const productImageSchema = joi.object({
 
 const productDescriptionSchema = joi.object({
     description: joi.string().trim().required(),
+    retainedImages: joi.any().optional(),
 })
 
 const DescriptionImagesSchema = joi.object({

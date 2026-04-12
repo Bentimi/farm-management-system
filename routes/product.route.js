@@ -11,8 +11,11 @@ router.post('/create', authMiddleware, doubleCsrfProtection, upload.single('phot
 router.patch('/:id', authMiddleware, doubleCsrfProtection, upload.single('photo'), productController.product_image);
 router.get('/all-products', authMiddleware, doubleCsrfProtection, productController.get_products)
 router.get('/categories', authMiddleware, doubleCsrfProtection, productController.get_categories)
-router.put('/update/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductSchema, productController.update_product);
-router.post('/description/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, productController.add_description);
+// router.put('/update/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductSchema, productController.update_product);
+router.put('/update/:id', authMiddleware, doubleCsrfProtection, upload.single('photo'), validatedData.validatedProductSchema, productController.update_product);
+
+// router.post('/description/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, productController.add_description);
+router.post('/description/:id', authMiddleware, doubleCsrfProtection, upload.array('photo', 10), validatedData.validatedProductDescriptionSchema, productController.add_description);
 router.patch('/description/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, upload.array('photo', 10), productController.upload_productImages);
 router.put('/description/:productId/:descriptionId', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, productController.update_product_description);
 router.post('/add-category', authMiddleware, doubleCsrfProtection, validatedData.validatedProductCategorySchema, productController.create_category);

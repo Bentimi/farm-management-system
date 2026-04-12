@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError.utils");
 const cloudinary = require("../config/cloudinary.config");
 const userValidation = require("../validation/user.validation");
 
-const createProduct = async (userId, data) => {
+const createProduct = async (userId, data, file) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -36,8 +36,6 @@ const createProduct = async (userId, data) => {
         throw new AppError("Product already exists", 409)
     }
 
-    // console.log(data.categoryId)
-
     const existingCategory = await prisma.productCategory.findUnique({
         where: {
             id: data.categoryId
@@ -48,19 +46,28 @@ const createProduct = async (userId, data) => {
         throw new AppError("Category does not exist", 404)
     }
 
+    let photoUrl = null;
+    if (file) {
+        const uploadResult = await cloudinary.uploader.upload(file.path, {
+            folder: "products",
+            public_id: `product_cover_${Date.now()}`
+        });
+        photoUrl = uploadResult.secure_url;
+    }
+
     const result = await prisma.$transaction(async (tx) => {
 
         const newProduct = await tx.product.create({
             data: {
                 name: data.name,
-                description: '',
-                coverDescription: data.coverDescription || '',
+                description: data.coverDescription || '',
                 price: data.price,
                 newPrice: data.newPrice || null,
+                photo: photoUrl,
                 quantity: data.quantity,
                 categoryId: existingCategory.id,
-                draft: true,
-                approved: data.approved || 'pending',
+                // draft: data.draft === undefined || data.draft === true ? true : false,
+                // approved: 'pending',
                 updatedById: userId,
                 last_updated: new Date()
             },
@@ -82,8 +89,6 @@ const createProduct = async (userId, data) => {
 }
 
 const uploadProductImage = async (file, productId, userId) => {
-
-    // console.log(file.path)
 
     const uploadProduct = await cloudinary.uploader.upload(file.path, {
             folder: "products",
@@ -150,32 +155,31 @@ const updateProduct = async (userId, targetId, data, file) => {
             throw new AppError("Category do not exist", 404)
         }
 
-        // let photoUrl = existingProduct.photo;
+        let photoUrl = existingProduct.photo;
 
-        // // Handle file upload if provided
-        // if (file) {
-        //     const uploadProduct = await cloudinary.uploader.upload(file.path, {
-        //         folder: "products",
-        //         public_id: `product_${targetId}_${Date.now()}`
-        //     });
-        //     photoUrl = uploadProduct.secure_url;
-        // }
+        // Handle file upload if provided
+        if (file) {
+            const uploadProduct = await cloudinary.uploader.upload(file.path, {
+                folder: "products",
+                public_id: `product_${targetId}_${Date.now()}`
+            });
+            photoUrl = uploadProduct.secure_url;
+        }
 
         const updateData = {
             name: data.name,
-            coverDescription: data.coverDescription || existingProduct.coverDescription || '',
+            description: data.coverDescription || existingProduct.description || '',
             price: data.price,
             newPrice: data.newPrice || null,
             quantity: data.quantity,
             categoryId: existingCategory.id,
-            draft: data.draft !== undefined ? data.draft : existingProduct.draft,
+            photo: photoUrl,
+            draft: data.draft !== undefined ? (typeof data.draft === 'string' ? data.draft === 'true' : data.draft) : existingProduct.draft,
             approved: data.approved || existingProduct.approved,
             approvedById: userAuth.id,
             updatedById: userAuth.id,
             last_updated: new Date()
         };
-
-
 
         const updatedProduct = await tx.product.update({
             where: {
@@ -227,40 +231,47 @@ const addDescription = async (userId, productId, data, files) => {
         throw new AppError("Product not found", 404);
     }
 
+    let uploadedUrls = [];
+    if (files && files.length > 0) {
+        const uploadPhotos = await Promise.all(
+            files.map((file, index) =>
+                cloudinary.uploader.upload(file.path, {
+                    folder: "product_descriptions",
+                    public_id: `desc_${productId}_${Date.now()}_${index}`,
+                    resource_type: "image"
+                })
+            )
+        );
+        uploadedUrls = uploadPhotos.map(u => u.secure_url);
+    }
+
+    const existingDesc = await prisma.productDescription.findFirst({
+        where: { productId: productId }
+    });
+
+    let parsedRetainedImages = existingDesc?.photo || [];
+    if (data.retainedImages !== undefined) {
+        try {
+            parsedRetainedImages = typeof data.retainedImages === 'string' ? JSON.parse(data.retainedImages) : data.retainedImages;
+        } catch (e) {
+            parsedRetainedImages = [];
+        }
+    }
+
+    let currentPhotos = [...parsedRetainedImages, ...uploadedUrls];
+
     const result = await prisma.$transaction(async (tx) => {
 
-        // let photoUrl = existingProduct.photo;
-        
-        // // Handle file uploads if provided
-        // if (files && files.length > 0) {
-        //     const uploadPhotos = await Promise.all(
-        //         files.map((file, index) =>
-        //             cloudinary.uploader.upload(file.path, {
-        //                 folder: index === 0 ? "products" : "product_descriptions",
-        //                 public_id: `product_${productId}_${Date.now()}_${index}`,
-        //                 resource_type: "image"
-        //             })
-        //         )
-        //     );
-
-        //     // First image is product photo
-        //     if (uploadPhotos.length > 0) {
-        //         photoUrl = uploadPhotos[0].secure_url;
-        //     }
-        // }
-
-        // Update product with description and photo
         const updatedProduct = await tx.product.update({
             where: {
                 id: productId
             },
             data: {
-                description: data.description,
-                // photo: photoUrl,
                 last_updated: new Date()
             },
             include: {
                 category: true,
+                descriptions: true,
                 updatedBy: {
                     omit: {
                         password: true
@@ -268,6 +279,24 @@ const addDescription = async (userId, productId, data, files) => {
                 }
             }
         });
+
+        if (existingDesc) {
+            await tx.productDescription.update({
+                where: { id: existingDesc.id },
+                data: {
+                    description: data.description,
+                    photo: currentPhotos,
+                }
+            });
+        } else {
+            await tx.productDescription.create({
+                data: {
+                    productId: productId,
+                    description: data.description,
+                    photo: currentPhotos
+                }
+            });
+        }
 
         return { product: updatedProduct };
     });
@@ -317,24 +346,12 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
 
     const result = await prisma.$transaction(async (tx) => {
 
-        // const uploadPhotos = await Promise.all(
-        //     files.map((file, index) =>
-        //         cloudinary.uploader.upload(file.path, {
-        //             folder: "product_descriptions",
-        //             public_id: `product_${productId}_description_${Date.now()}_${index}`,
-        //             resource_type: "image"
-        //         })
-        //     )
-        // );
-        // const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
-
         const updateDescription = await tx.productDescription.update({
             where: {
                 id: existingDescription.id
             },
             data: {
                 description: data.description,
-                // photo: updatedPhotos,
                 last_updated: new Date()
             },
             include: {
