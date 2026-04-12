@@ -63,6 +63,7 @@ model Product {
   price         Decimal     @db.Decimal(10, 2)
   newPrice      Decimal?     @db.Decimal(10, 2)
   description   String?
+  coverDescription String?
   quantity      Int         @default(0)
   draft         Boolean     @default(true)
   approved      productStatus     @default(pending)

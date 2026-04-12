@@ -67,9 +67,8 @@ const add_description = async (req, res, next) => {
         const userId = req.user.id;
         const productId = req.params.id;
         const data = req.body;
-        const files = req.files;
 
-        const product = await productService.addDescription(userId, productId, data, files);
+        const product = await productService.addDescription(userId, productId, data);
         res.success(
             product, 
             "Product description added successfully");
@@ -86,15 +85,15 @@ const update_product_description = async (req, res, next) => {
         const productId = req.params.productId;
         const descriptionId = req.params.descriptionId;
         const data = req.body;
-        const files = req.files;
 
-        const updated = await productService.updateProductDescription(userId, productId, descriptionId, data, files);
+        const updated = await productService.updateProductDescription(userId, productId, descriptionId, data);
         res.success(updated, "Product description updated successfully");
 
     } catch (e) {
         next(e);
     }
 }
+
 
 const create_category = async (req, res, next) => {
     try {
@@ -245,6 +244,22 @@ const get_categories = async (req, res, next) => {
     }
 }
 
+const upload_productImages = async (req, res, next) => {
+    try {
+
+        const userId = req.user.id;
+        const files = req.files;
+        const descriptionId = req.params.id;
+
+        const result = await productService.uploadProductImages(userId, files, descriptionId)
+
+        res.success(result, "Images uploaded successfully")
+
+    } catch (e) {
+        next(e);
+    }
+}
+
 module.exports = {
     create_product,
     product_image,
@@ -259,5 +274,6 @@ module.exports = {
     delete_cartItem,
     get_cart,
     get_products,
-    get_categories
+    get_categories,
+    upload_productImages
 }

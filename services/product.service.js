@@ -54,6 +54,7 @@ const createProduct = async (userId, data) => {
             data: {
                 name: data.name,
                 description: '',
+                coverDescription: data.coverDescription || '',
                 price: data.price,
                 newPrice: data.newPrice || null,
                 quantity: data.quantity,
@@ -149,9 +150,20 @@ const updateProduct = async (userId, targetId, data, file) => {
             throw new AppError("Category do not exist", 404)
         }
 
+        // let photoUrl = existingProduct.photo;
+
+        // // Handle file upload if provided
+        // if (file) {
+        //     const uploadProduct = await cloudinary.uploader.upload(file.path, {
+        //         folder: "products",
+        //         public_id: `product_${targetId}_${Date.now()}`
+        //     });
+        //     photoUrl = uploadProduct.secure_url;
+        // }
+
         const updateData = {
             name: data.name,
-            description: data.description,
+            coverDescription: data.coverDescription || existingProduct.coverDescription || '',
             price: data.price,
             newPrice: data.newPrice || null,
             quantity: data.quantity,
@@ -217,25 +229,25 @@ const addDescription = async (userId, productId, data, files) => {
 
     const result = await prisma.$transaction(async (tx) => {
 
-        let photoUrl = existingProduct.photo;
+        // let photoUrl = existingProduct.photo;
         
-        // Handle file uploads if provided
-        if (files && files.length > 0) {
-            const uploadPhotos = await Promise.all(
-                files.map((file, index) =>
-                    cloudinary.uploader.upload(file.path, {
-                        folder: index === 0 ? "products" : "product_descriptions",
-                        public_id: `product_${productId}_${Date.now()}_${index}`,
-                        resource_type: "image"
-                    })
-                )
-            );
+        // // Handle file uploads if provided
+        // if (files && files.length > 0) {
+        //     const uploadPhotos = await Promise.all(
+        //         files.map((file, index) =>
+        //             cloudinary.uploader.upload(file.path, {
+        //                 folder: index === 0 ? "products" : "product_descriptions",
+        //                 public_id: `product_${productId}_${Date.now()}_${index}`,
+        //                 resource_type: "image"
+        //             })
+        //         )
+        //     );
 
-            // First image is product photo
-            if (uploadPhotos.length > 0) {
-                photoUrl = uploadPhotos[0].secure_url;
-            }
-        }
+        //     // First image is product photo
+        //     if (uploadPhotos.length > 0) {
+        //         photoUrl = uploadPhotos[0].secure_url;
+        //     }
+        // }
 
         // Update product with description and photo
         const updatedProduct = await tx.product.update({
@@ -244,7 +256,7 @@ const addDescription = async (userId, productId, data, files) => {
             },
             data: {
                 description: data.description,
-                photo: photoUrl,
+                // photo: photoUrl,
                 last_updated: new Date()
             },
             include: {
@@ -305,16 +317,16 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
 
     const result = await prisma.$transaction(async (tx) => {
 
-        const uploadPhotos = await Promise.all(
-            files.map((file, index) =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "product_descriptions",
-                    public_id: `product_${productId}_description_${Date.now()}_${index}`,
-                    resource_type: "image"
-                })
-            )
-        );
-        const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
+        // const uploadPhotos = await Promise.all(
+        //     files.map((file, index) =>
+        //         cloudinary.uploader.upload(file.path, {
+        //             folder: "product_descriptions",
+        //             public_id: `product_${productId}_description_${Date.now()}_${index}`,
+        //             resource_type: "image"
+        //         })
+        //     )
+        // );
+        // const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
 
         const updateDescription = await tx.productDescription.update({
             where: {
@@ -322,8 +334,11 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
             },
             data: {
                 description: data.description,
-                photo: updatedPhotos,
+                // photo: updatedPhotos,
                 last_updated: new Date()
+            },
+            include: {
+                product: true
             }
         });
 
@@ -331,6 +346,25 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
     });
 
     return result;
+}
+
+const uploadProductImages = async (userId, files, descriptionId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("User does not exist", 404);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Account not activated", 401)
+    }
+
+
+    
 }
 
 const createCategory = async (userId, data) => {
@@ -757,6 +791,7 @@ module.exports = {
     updateProduct,
     addDescription,
     updateProductDescription,
+    uploadProductImages,
     createCategory,
     productApproval,
     productPublish,
