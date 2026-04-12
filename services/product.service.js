@@ -363,8 +363,52 @@ const uploadProductImages = async (userId, files, descriptionId) => {
         throw new AppError("Account not activated", 401)
     }
 
+    const existingDescription = await prisma.productDescription.findUnique({
+        where: {
+            id: descriptionId,
+        }
+    }); 
 
+     if (!existingDescription) {
+        throw new AppError("Product description not found", 404);
+    }
+
+
+     let photoUrl = existingProduct.photo;
+        
+        // Handle file uploads if provided
+        if (files && files.length > 0) {
+            const uploadPhotos = await Promise.all(
+                files.map((file, index) =>
+                    cloudinary.uploader.upload(file.path, {
+                        folder: index === 0 ? "products" : "product_descriptions",
+                        public_id: `product_${productId}_${Date.now()}_${index}`,
+                        resource_type: "image"
+                    })
+                )
+            );
+
+            // First image is product photo
+            if (uploadPhotos.length > 0) {
+                photoUrl = uploadPhotos[0].secure_url;
+            }
+        }
     
+    const updatedImages = await prisma.productDescription.update({
+        where: {
+            id: descriptionId
+        },
+        data: {
+            photo: photoUrl,
+            last_updated: new Date()
+        },
+        include: {
+            product: true
+        }
+    })
+
+    return { result: updatedImages }
+
 }
 
 const createCategory = async (userId, data) => {
