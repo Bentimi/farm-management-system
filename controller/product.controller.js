@@ -273,6 +273,18 @@ const upload_productImages = async (req, res, next) => {
     }
 }
 
+const verified_products = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const page = req.params.page;
+        const pageSize = req.params.pageSize;
+        const categories = await productService.verifiedProducts(userId, page, pageSize);
+        res.success(categories, "Products retrieved successfully")
+    } catch(e) {
+        next(e);
+    }
+}
+
 module.exports = {
     create_product,
     product_image,
@@ -288,5 +300,6 @@ module.exports = {
     get_cart,
     get_products,
     get_categories,
-    upload_productImages
+    upload_productImages,
+    verified_products
 }

@@ -846,6 +846,41 @@ const getProducts = async (userId, page, pageSize) => {
 
 }
 
+const verifiedProducts = async (userId, page, pageSize) => {
+
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 403);
+    }
+
+
+    const products = await prisma.product.findMany({
+        where: {
+            approved: 'approved',
+            draft: false
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+            category: true,
+            carts: true,
+            descriptions: true
+        }
+    })
+
+    return products;
+
+}
+
 module.exports = {
     createProduct,
     uploadProductImage,
@@ -861,5 +896,6 @@ module.exports = {
     deleteCartItem,
     getCart,
     getProducts,
-    getCategories
+    getCategories,
+    verifiedProducts
 }

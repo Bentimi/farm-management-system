@@ -25,5 +25,6 @@ router.post('/add-to-cart/:id', authMiddleware, doubleCsrfProtection, validatedD
 router.put('/edit-cart-item/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.edit_cartItem);
 router.delete('/delete-cart-item/:id', authMiddleware, doubleCsrfProtection, productController.delete_cartItem);
 router.get('/cart', authMiddleware, doubleCsrfProtection, productController.get_cart)
+router.get('/verified-products', authMiddleware, doubleCsrfProtection, productController.verified_products)
 
 module.exports = router;
