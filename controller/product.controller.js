@@ -276,11 +276,12 @@ const upload_productImages = async (req, res, next) => {
 const verified_products = async (req, res, next) => {
     try {
         const userId = req.user.id;
-        const page = req.params.page;
-        const pageSize = req.params.pageSize;
+        const page = parseInt(req.params.page) || 1;
+        const pageSize = parseInt(req.params.pageSize) || 10;
         const categories = await productService.verifiedProducts(userId, page, pageSize);
         res.success(categories, "Products retrieved successfully")
     } catch(e) {
+        console.log(e);
         next(e);
     }
 }

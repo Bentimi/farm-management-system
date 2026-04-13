@@ -878,7 +878,7 @@ const verifiedProducts = async (userId, page, pageSize) => {
     })
 
     return products;
-
+    
 }
 
 module.exports = {
