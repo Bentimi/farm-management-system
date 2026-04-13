@@ -1,7 +1,7 @@
 const { prisma } = require("../lib/prisma")
 const bcrypt = require("bcryptjs");
 const AppError = require("../utils/AppError.utils.js");
-const { generateUsername } = require("../utils/dataNormalization.utils.js");
+const { generateUsername, normalizePhoneNumber } = require("../utils/dataNormalization.utils.js");
 
 
 const createUser = async (data) => {
@@ -128,12 +128,17 @@ const updateUser = async (userId, targetId, data) => {
         throw new AppError("All fields required", 400)
     }
 
+    const { phone_number, ...remainingData } = data;
+
+    const normalizedPhone = normalizePhoneNumber(data.phone_number);
+
     const updatedUser = await prisma.user.update({
         where: {
             id: targetId
         },
         data: {
-            ...data
+            ...remainingData,
+            phone_number: normalizedPhone
         },
         omit: {
             password: true
