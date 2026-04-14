@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { prisma } = require("../lib/prisma");
+const AppError = require("../utils/AppError.utils");
 const axios = require("axios");                                                         
 const Flutterwave = require('flutterwave-node-v3');
 const { transactionId } = require("../utils/transactionNumber.utils");
@@ -12,6 +13,33 @@ const createRedirectUrl = async (userId, data) => {
             id: userId
         }
     })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Unauthorized user", 401)
+    }
+
+    // const existingCart = await prisma.cart.findMany
+
+
+    const userCart = await prisma.cart.aggregate({
+        where:{
+            userId: userAuth.id,
+            orderId: null
+        },
+        _sum: {
+            total_price: true
+        }
+    })
+
+    const totalAmount = Number(userCart._sum.total_price)
+
+    if (totalAmount <= 0) {
+        throw new AppError("Cart is empty", 400)
+    }
     
     const txRef = transactionId();
 
@@ -26,7 +54,7 @@ const createRedirectUrl = async (userId, data) => {
     const response = await axios.post(`https://api.flutterwave.com/v3/payments`,
         {
             tx_ref: txRef,
-            amount: '7500',
+            amount: totalAmount,
             currency: 'NGN',
             redirect_url: data.url,
             customer: {
@@ -50,7 +78,8 @@ const createRedirectUrl = async (userId, data) => {
             data: {
                 status: 'pending',
                 orderedUserId: userAuth.id,
-                txRef: txRef
+                txRef: txRef,
+                total_price: totalAmount
             }
         })
 
@@ -64,8 +93,7 @@ const createRedirectUrl = async (userId, data) => {
             }  
         })
 
-        return response
-
+        return response.data.data.link
     })
 
     return result
