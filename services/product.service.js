@@ -600,12 +600,40 @@ const addToCart = async (userId, productId, data) => {
 
     const result = await prisma.$transaction(async (tx) => {
 
+        const existingCartItem = await tx.cart.findFirst({
+            where: {
+                userId: userAuth.id,
+                productId: existingProduct.id,
+                orderId: null
+            }
+        });
+
+        const productPrice = existingProduct.newPrice ?? existingProduct.price;
+
+        if (existingCartItem) {
+            const newQuantity = existingCartItem.quantity + data.quantity;
+            if (existingProduct.quantity < newQuantity) {
+                throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
+            }
+            
+            const updatedCartItem = await tx.cart.update({
+                where: { id: existingCartItem.id },
+                data: {
+                    quantity: newQuantity,
+                    price: productPrice,
+                    total_price: productPrice.mul(newQuantity)
+                },
+                include: {
+                    user: { omit: { password: true } },
+                    order: true
+                }
+            });
+            return { cart: updatedCartItem };
+        }
+
         if (existingProduct.quantity < data.quantity) {
             throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
         }
-
-
-        const productPrice = existingProduct.newPrice ?? existingProduct.price
 
         const cartItem = await tx.cart.create({
             data: {
@@ -617,21 +645,18 @@ const addToCart = async (userId, productId, data) => {
             },
             include: {
                 user: {
-                    omit: {
-                        password: true
-                    }
+                    omit: { password: true }
                 },
                 order: true
             }
+        });
 
-        })
-
-        return { cart: cartItem }
+        return { cart: cartItem };
     })
     return result;
 }
 
-const editCartItem = async (userId, cartId) => {
+const editCartItem = async (userId, cartId, data) => {
 
     const userAuth = await prisma.user.findUnique({
         where: {
@@ -767,6 +792,9 @@ const getCart = async (userId) => {
         where: {
             userId: userAuth.id,
             orderId: null
+        },
+        include: {
+            product: true
         }
     })
 
@@ -774,9 +802,7 @@ const getCart = async (userId) => {
         throw new AppError("Cart is empty", 404);
     }
 
-    const totalPrice = cartItems
-        .map(item => item.total_price)
-        .reduce((sum, price) => sum.add(price));
+    const totalPrice = cartItems.reduce((total, item) => total + Number(item.total_price), 0);
 
     const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
