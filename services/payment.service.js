@@ -22,36 +22,60 @@ const createRedirectUrl = async (userId, data) => {
         throw new AppError("Unauthorized user", 401)
     }
 
-    // const existingCart = await prisma.cart.findMany
-
-
-    const userCart = await prisma.cart.aggregate({
-        where:{
+    const existingCart = await prisma.cart.findMany({
+        where: {
             userId: userAuth.id,
             orderId: null
         },
-        _sum: {
-            total_price: true
+        include: {
+            product: true
         }
     })
 
-    const totalAmount = Number(userCart._sum.total_price)
+     await Promise.all(
+        existingCart.map(item => {
+            const actualPrice = item.product.newPrice ?? item.product.price;
+            const computedTotal = Number(actualPrice) * item.quantity;
 
-    if (totalAmount <= 0) {
-        throw new AppError("Cart is empty", 400)
-    }
+            if (
+                Number(item.price) !== Number(actualPrice) ||
+                Number(item.total_price) !== computedTotal
+            ) {
+                return prisma.cart.update({
+                    where: { id: item.id },
+                    data: {
+                        price: actualPrice,
+                        total_price: computedTotal
+                    }
+                });
+            }
+
+            return Promise.resolve();
+        })
+    );
+
+        const userCart = await prisma.cart.aggregate({
+            where:{
+                userId: userAuth.id,
+                orderId: null
+            },
+            _sum: {
+                total_price: true
+            }
+        })
     
-    const txRef = transactionId();
+        const totalAmount = Number(userCart._sum.total_price)
+    
+        if (totalAmount <= 0) {
+            throw new AppError("Cart is empty", 400)
+        }
+        
+        const txRef = transactionId();
+        let paymentLink;
 
-    const result = await prisma.$transaction(async (tx) => {
-
-        const flw = new Flutterwave(
-        process.env.FLW_PUBLIC_KEY,
-        process.env.FLW_SECRET_KEY,
-        );
-
-
-    const response = await axios.post(`https://api.flutterwave.com/v3/payments`,
+    
+    try {
+        const response = await axios.post(`https://api.flutterwave.com/v3/payments`,
         {
             tx_ref: txRef,
             amount: totalAmount,
@@ -72,7 +96,22 @@ const createRedirectUrl = async (userId, data) => {
                 'Content-Type': 'application/json',
             },
     }
-        )
+        )      
+
+    paymentLink = response.data?.data?.link
+
+    if (!paymentLink) {
+        throw new AppError("Unable to generate payment link", 500);
+    }
+
+
+    } catch (e) {
+        console.log(e)
+        throw new AppError("Payment initialization failed", 500);
+    }
+
+
+    await prisma.$transaction(async (tx) => {
 
         const createorder = await tx.order.create({
             data: {
@@ -92,13 +131,8 @@ const createRedirectUrl = async (userId, data) => {
                 orderId: createorder.id
             }  
         })
-
-        return response.data.data.link
     })
-
-    return result
-
-
+    return paymentLink
 }
 
 
