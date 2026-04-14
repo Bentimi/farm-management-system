@@ -22,6 +22,10 @@ const createRedirectUrl = async (userId, data) => {
         throw new AppError("Unauthorized user", 401)
     }
 
+    if (!data.url) {
+        throw new AppError("Redirect Url do not exist", 400)
+    }
+
     const existingCart = await prisma.cart.findMany({
         where: {
             userId: userAuth.id,
@@ -72,7 +76,6 @@ const createRedirectUrl = async (userId, data) => {
         
         const txRef = transactionId();
         let paymentLink;
-
     
     try {
         const response = await axios.post(`https://api.flutterwave.com/v3/payments`,
@@ -87,7 +90,7 @@ const createRedirectUrl = async (userId, data) => {
                 phonenumber: userAuth.phone_number,
             },
             customizations: {
-                title: 'Flutterwave Standard Payment',
+                title: 'Agritonix Standard Payment',
             },   
         },
         {
@@ -136,6 +139,54 @@ const createRedirectUrl = async (userId, data) => {
 }
 
 
+const flutterwaveWebhook = async (req, res) => {
+
+    const flw = new Flutterwave(
+            process.env.FLW_PUBLIC_KEY,
+            process.env.FLW_SECRET_KEY
+        )
+
+
+    // If you specified a secret hash, check for the signature
+
+    const secretHash = process.env.FLW_SECRET_HASH;
+    const signature = req.headers["verif-hash"];
+    if (!signature || (signature !== secretHash)) {
+        // This request isn't from Flutterwave; discard
+        throw new AppError("Unauthorized request", 401)
+    }
+    const payload = req.body;
+    console.log(payload)
+
+    const existingEvent = await PaymentEvent.where({id: payload.id}).find();
+        if (existingEvent.status === payload.status) {
+            // The status hasn't changed,
+            // so it's probably just a duplicate event
+            // and we can discard it
+            res.status(200).end();
+        }
+
+        // Record this event
+        await PaymentEvent.save(payload);
+
+    // It's a good idea to log all received events.
+    // console.log(payload);
+    // Do something (that doesn't take too long) with the payload
+    const response = await flw.Transaction.verify({id: payload.id});
+    if (
+        response.data.status === "successful"
+        && response.data.amount === expectedAmount
+        && response.data.currency === expectedCurrency
+        && response.data.tx_ref === expectedReference ) {
+        // Success! Confirm the customer's payment
+    } else {
+        // Inform the customer their payment was unsuccessful
+    }
+    
+
+}
+
 module.exports = {
-    createRedirectUrl
+    createRedirectUrl,
+    flutterwaveWebhook
 }
