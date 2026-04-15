@@ -53,8 +53,7 @@ const createProduct = async (userId, data) => {
         const newProduct = await tx.product.create({
             data: {
                 name: data.name,
-                description: '',
-                coverDescription: data.coverDescription || '',
+                description: data.description || '',
                 price: data.price,
                 newPrice: data.newPrice || null,
                 quantity: data.quantity,
@@ -116,6 +115,8 @@ const updateProduct = async (userId, targetId, data, file) => {
         }
     })
 
+    console.log(data)
+
     if (!userAuth) {
         throw new AppError("Unauthorized user", 401);
     }
@@ -150,25 +151,26 @@ const updateProduct = async (userId, targetId, data, file) => {
             throw new AppError("Category do not exist", 404)
         }
 
-        // let photoUrl = existingProduct.photo;
+        let photoUrl = existingProduct.photo;
 
-        // // Handle file upload if provided
-        // if (file) {
-        //     const uploadProduct = await cloudinary.uploader.upload(file.path, {
-        //         folder: "products",
-        //         public_id: `product_${targetId}_${Date.now()}`
-        //     });
-        //     photoUrl = uploadProduct.secure_url;
-        // }
+        // Handle file upload if provided
+        if (file) {
+            const uploadProduct = await cloudinary.uploader.upload(file.path, {
+                folder: "products",
+                public_id: `product_${targetId}_${Date.now()}`
+            });
+            photoUrl = uploadProduct.secure_url;
+        }
 
         const updateData = {
             name: data.name,
-            coverDescription: data.coverDescription || existingProduct.coverDescription || '',
-            price: data.price,
-            newPrice: data.newPrice || null,
-            quantity: data.quantity,
+            description: data.description || existingProduct.description || '',
+            price: parseFloat(data.price),
+            newPrice: data.newPrice ? parseFloat(data.newPrice) : null,
+            quantity: parseInt(data.quantity),
             categoryId: existingCategory.id,
-            draft: data.draft !== undefined ? data.draft : existingProduct.draft,
+            photo: photoUrl,
+            draft: data.draft === 'true' || data.draft === true ? true : (data.draft === 'false' || data.draft === false ? false : existingProduct.draft),
             approved: data.approved || existingProduct.approved,
             approvedById: userAuth.id,
             updatedById: userAuth.id,
@@ -227,54 +229,66 @@ const addDescription = async (userId, productId, data, files) => {
         throw new AppError("Product not found", 404);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    // Check if a description already exists for this product
+    const existingDescription = await prisma.productDescription.findFirst({
+        where: {
+            productId: productId
+        }
+    });
 
-        let photoUrl = existingProduct.photo;
+    // If description exists, update it instead of creating a new one
+    if (existingDescription) {
+        throw new AppError("Product already has a description. Use edit to update it.", 409);
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        let uploadedPhotoUrls = [];
         
         // Handle file uploads if provided
         if (files && files.length > 0) {
             const uploadPhotos = await Promise.all(
                 files.map((file, index) =>
                     cloudinary.uploader.upload(file.path, {
-                        folder: index === 0 ? "products" : "product_descriptions",
-                        public_id: `product_${productId}_${Date.now()}_${index}`,
+                        folder: "product_descriptions",
+                        public_id: `product_${productId}_desc_${Date.now()}_${index}`,
                         resource_type: "image"
                     })
                 )
             );
-
-            // First image is product photo
-            if (uploadPhotos.length > 0) {
-                photoUrl = uploadPhotos[0].secure_url;
-            }
+            uploadedPhotoUrls = uploadPhotos.map(upload => upload.secure_url);
         }
 
-        // Update product with description and photo
-        const updatedProduct = await tx.product.update({
-            where: {
-                id: productId
-            },
+        // Handle retained images (for updates)
+        let finalPhotoUrls = uploadedPhotoUrls;
+        if (data.retainedImages && Array.isArray(data.retainedImages) && data.retainedImages.length > 0) {
+            finalPhotoUrls = [...data.retainedImages, ...uploadedPhotoUrls];
+        }
+
+        // Create new ProductDescription record with multiple images
+        const newDescription = await tx.productDescription.create({
             data: {
                 description: data.description,
-                photo: photoUrl,
-                last_updated: new Date()
-            },
-            include: {
-                category: true,
-                updatedBy: {
-                    omit: {
-                        password: true
-                    }
-                }
+                photo: finalPhotoUrls,
+                productId: productId
             }
         });
 
-        return { product: updatedProduct };
+        // Also update the main product description if it's the first one or empty
+        if (!existingProduct.description) {
+            await tx.product.update({
+                where: { id: productId },
+                data: {
+                    description: data.description,
+                    last_updated: new Date()
+                }
+            });
+        }
+
+        return { description: newDescription };
     });
 
     return result;
 }
-
 const updateProductDescription = async (userId, productId, descriptionId, data, files) => {
     const userAuth = await prisma.user.findUnique({
         where: {
@@ -315,18 +329,39 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
         throw new AppError("Product description not found", 404);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    // Parse retained images if provided
+    let retainedImages = [];
+    if (data.retainedImages) {
+        if (typeof data.retainedImages === 'string') {
+            try {
+                retainedImages = JSON.parse(data.retainedImages);
+            } catch (e) {
+                retainedImages = [];
+            }
+        } else if (Array.isArray(data.retainedImages)) {
+            retainedImages = data.retainedImages;
+        }
+    }
 
-        const uploadPhotos = await Promise.all(
-            files.map((file, index) =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "product_descriptions",
-                    public_id: `product_${productId}_description_${Date.now()}_${index}`,
-                    resource_type: "image"
-                })
-            )
-        );
-        const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
+    const result = await prisma.$transaction(async (tx) => {
+        let newPhotoUrls = [];
+        
+        // Handle new file uploads if provided
+        if (files && files.length > 0) {
+            const uploadPhotos = await Promise.all(
+                files.map((file, index) =>
+                    cloudinary.uploader.upload(file.path, {
+                        folder: "product_descriptions",
+                        public_id: `product_${productId}_description_${Date.now()}_${index}`,
+                        resource_type: "image"
+                    })
+                )
+            );
+            newPhotoUrls = uploadPhotos.map(upload => upload.secure_url);
+        }
+
+        // Merge retained images with new uploads
+        const finalPhotos = [...retainedImages, ...newPhotoUrls];
 
         const updateDescription = await tx.productDescription.update({
             where: {
@@ -334,8 +369,8 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
             },
             data: {
                 description: data.description,
-                photo: updatedPhotos,
-                last_updated: new Date()
+                photo: finalPhotos,
+                // last_updated: new Date()
             }
         });
 
@@ -343,6 +378,55 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
     });
 
     return result;
+}
+
+const deleteProductDescription = async (userId, productId, descriptionId) => {
+    const userAuth = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Inactive user", 403);
+    }
+
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    const existingProduct = await prisma.product.findUnique({
+        where: {
+            id: productId
+        }
+    });
+
+    if (!existingProduct) {
+        throw new AppError("Product not found", 404);
+    }
+
+    const existingDescription = await prisma.productDescription.findUnique({
+        where: {
+            id: descriptionId,
+            productId: existingProduct.id
+        }
+    });
+
+    if (!existingDescription) {
+        throw new AppError("Product description not found", 404);
+    }
+
+    await prisma.productDescription.delete({
+        where: {
+            id: descriptionId
+        }
+    });
+
+    return { message: "Description deleted successfully" };
 }
 
 const createCategory = async (userId, data) => {
@@ -684,6 +768,9 @@ const getCart = async (userId) => {
         where: {
             userId: userAuth.id,
             checked: false
+        },
+        include: {
+            product: true
         }
     })
 
@@ -806,6 +893,7 @@ module.exports = {
     updateProduct,
     addDescription,
     updateProductDescription,
+    deleteProductDescription,
     createCategory,
     productApproval,
     productPublish,

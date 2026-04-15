@@ -29,7 +29,7 @@ const createRedirectUrl = async (userId, data) => {
     const existingCart = await prisma.cart.findMany({
         where: {
             userId: userAuth.id,
-            orderId: null
+            checked: false
         },
         include: {
             product: true
@@ -61,14 +61,14 @@ const createRedirectUrl = async (userId, data) => {
         const userCart = await prisma.cart.aggregate({
             where:{
                 userId: userAuth.id,
-                orderId: null
+                checked: false
             },
             _sum: {
                 total_price: true
             }
         })
     
-        const totalAmount = Number(userCart._sum.total_price)
+        const totalAmount = Number(userCart._sum.total_price) * 1.075
     
         if (totalAmount <= 0) {
             throw new AppError("Cart is empty", 400)

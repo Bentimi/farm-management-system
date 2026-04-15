@@ -93,20 +93,43 @@ const add_description = async (req, res, next) => {
 
 const update_product_description = async (req, res, next) => {
     try {
-
         const userId = req.user.id;
         const productId = req.params.productId;
         const descriptionId = req.params.descriptionId;
         const data = req.body;
+        const files = req.files || [];
 
-        const updated = await productService.updateProductDescription(userId, productId, descriptionId, data);
+        // Handle retained images parsing
+        if (data.retainedImages && typeof data.retainedImages === 'string') {
+            try {
+                data.retainedImages = JSON.parse(data.retainedImages);
+            } catch (e) {
+                data.retainedImages = [];
+            }
+        }
+
+        const updated = await productService.updateProductDescription(userId, productId, descriptionId, data, files);
         res.success(updated, "Product description updated successfully");
+
+    } catch (e) {
+        console.log(e)
+        next(e);
+    }
+}
+
+const delete_product_description = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const productId = req.params.productId;
+        const descriptionId = req.params.descriptionId;
+
+        await productService.deleteProductDescription(userId, productId, descriptionId);
+        res.success(null, "Product description deleted successfully");
 
     } catch (e) {
         next(e);
     }
 }
-
 
 const create_category = async (req, res, next) => {
     try {
@@ -293,6 +316,7 @@ module.exports = {
     update_product,
     add_description,
     update_product_description,
+    delete_product_description,
     create_category,
     product_approval,
     product_publish,
