@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError.utils");
 const cloudinary = require("../config/cloudinary.config");
 const userValidation = require("../validation/user.validation");
 
-const createProduct = async (userId, data, file) => {
+const createProduct = async (userId, data) => {
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -36,6 +36,8 @@ const createProduct = async (userId, data, file) => {
         throw new AppError("Product already exists", 409)
     }
 
+    // console.log(data.categoryId)
+
     const existingCategory = await prisma.productCategory.findUnique({
         where: {
             id: data.categoryId
@@ -46,28 +48,19 @@ const createProduct = async (userId, data, file) => {
         throw new AppError("Category does not exist", 404)
     }
 
-    let photoUrl = null;
-    if (file) {
-        const uploadResult = await cloudinary.uploader.upload(file.path, {
-            folder: "products",
-            public_id: `product_cover_${Date.now()}`
-        });
-        photoUrl = uploadResult.secure_url;
-    }
-
     const result = await prisma.$transaction(async (tx) => {
 
         const newProduct = await tx.product.create({
             data: {
                 name: data.name,
-                description: data.coverDescription || '',
+                description: '',
+                coverDescription: data.coverDescription || '',
                 price: data.price,
                 newPrice: data.newPrice || null,
-                photo: photoUrl,
                 quantity: data.quantity,
                 categoryId: existingCategory.id,
-                // draft: data.draft === undefined || data.draft === true ? true : false,
-                // approved: 'pending',
+                draft: true,
+                approved: data.approved || 'pending',
                 updatedById: userId,
                 last_updated: new Date()
             },
@@ -89,6 +82,8 @@ const createProduct = async (userId, data, file) => {
 }
 
 const uploadProductImage = async (file, productId, userId) => {
+
+    // console.log(file.path)
 
     const uploadProduct = await cloudinary.uploader.upload(file.path, {
             folder: "products",
@@ -155,31 +150,32 @@ const updateProduct = async (userId, targetId, data, file) => {
             throw new AppError("Category do not exist", 404)
         }
 
-        let photoUrl = existingProduct.photo;
+        // let photoUrl = existingProduct.photo;
 
-        // Handle file upload if provided
-        if (file) {
-            const uploadProduct = await cloudinary.uploader.upload(file.path, {
-                folder: "products",
-                public_id: `product_${targetId}_${Date.now()}`
-            });
-            photoUrl = uploadProduct.secure_url;
-        }
+        // // Handle file upload if provided
+        // if (file) {
+        //     const uploadProduct = await cloudinary.uploader.upload(file.path, {
+        //         folder: "products",
+        //         public_id: `product_${targetId}_${Date.now()}`
+        //     });
+        //     photoUrl = uploadProduct.secure_url;
+        // }
 
         const updateData = {
             name: data.name,
-            description: data.coverDescription || existingProduct.description || '',
+            coverDescription: data.coverDescription || existingProduct.coverDescription || '',
             price: data.price,
             newPrice: data.newPrice || null,
             quantity: data.quantity,
             categoryId: existingCategory.id,
-            photo: photoUrl,
-            draft: data.draft !== undefined ? (typeof data.draft === 'string' ? data.draft === 'true' : data.draft) : existingProduct.draft,
+            draft: data.draft !== undefined ? data.draft : existingProduct.draft,
             approved: data.approved || existingProduct.approved,
             approvedById: userAuth.id,
             updatedById: userAuth.id,
             last_updated: new Date()
         };
+
+
 
         const updatedProduct = await tx.product.update({
             where: {
@@ -231,47 +227,40 @@ const addDescription = async (userId, productId, data, files) => {
         throw new AppError("Product not found", 404);
     }
 
-    let uploadedUrls = [];
-    if (files && files.length > 0) {
-        const uploadPhotos = await Promise.all(
-            files.map((file, index) =>
-                cloudinary.uploader.upload(file.path, {
-                    folder: "product_descriptions",
-                    public_id: `desc_${productId}_${Date.now()}_${index}`,
-                    resource_type: "image"
-                })
-            )
-        );
-        uploadedUrls = uploadPhotos.map(u => u.secure_url);
-    }
-
-    const existingDesc = await prisma.productDescription.findFirst({
-        where: { productId: productId }
-    });
-
-    let parsedRetainedImages = existingDesc?.photo || [];
-    if (data.retainedImages !== undefined) {
-        try {
-            parsedRetainedImages = typeof data.retainedImages === 'string' ? JSON.parse(data.retainedImages) : data.retainedImages;
-        } catch (e) {
-            parsedRetainedImages = [];
-        }
-    }
-
-    let currentPhotos = [...parsedRetainedImages, ...uploadedUrls];
-
     const result = await prisma.$transaction(async (tx) => {
 
+        let photoUrl = existingProduct.photo;
+        
+        // Handle file uploads if provided
+        if (files && files.length > 0) {
+            const uploadPhotos = await Promise.all(
+                files.map((file, index) =>
+                    cloudinary.uploader.upload(file.path, {
+                        folder: index === 0 ? "products" : "product_descriptions",
+                        public_id: `product_${productId}_${Date.now()}_${index}`,
+                        resource_type: "image"
+                    })
+                )
+            );
+
+            // First image is product photo
+            if (uploadPhotos.length > 0) {
+                photoUrl = uploadPhotos[0].secure_url;
+            }
+        }
+
+        // Update product with description and photo
         const updatedProduct = await tx.product.update({
             where: {
                 id: productId
             },
             data: {
+                description: data.description,
+                photo: photoUrl,
                 last_updated: new Date()
             },
             include: {
                 category: true,
-                descriptions: true,
                 updatedBy: {
                     omit: {
                         password: true
@@ -279,24 +268,6 @@ const addDescription = async (userId, productId, data, files) => {
                 }
             }
         });
-
-        if (existingDesc) {
-            await tx.productDescription.update({
-                where: { id: existingDesc.id },
-                data: {
-                    description: data.description,
-                    photo: currentPhotos,
-                }
-            });
-        } else {
-            await tx.productDescription.create({
-                data: {
-                    productId: productId,
-                    description: data.description,
-                    photo: currentPhotos
-                }
-            });
-        }
 
         return { product: updatedProduct };
     });
@@ -346,16 +317,25 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
 
     const result = await prisma.$transaction(async (tx) => {
 
+        const uploadPhotos = await Promise.all(
+            files.map((file, index) =>
+                cloudinary.uploader.upload(file.path, {
+                    folder: "product_descriptions",
+                    public_id: `product_${productId}_description_${Date.now()}_${index}`,
+                    resource_type: "image"
+                })
+            )
+        );
+        const updatedPhotos = uploadPhotos.map(upload => upload.secure_url);
+
         const updateDescription = await tx.productDescription.update({
             where: {
                 id: existingDescription.id
             },
             data: {
                 description: data.description,
+                photo: updatedPhotos,
                 last_updated: new Date()
-            },
-            include: {
-                product: true
             }
         });
 
@@ -363,69 +343,6 @@ const updateProductDescription = async (userId, productId, descriptionId, data, 
     });
 
     return result;
-}
-
-const uploadProductImages = async (userId, files, descriptionId) => {
-    const userAuth = await prisma.user.findUnique({
-        where: {
-            id: userId
-        }
-    })
-
-    if (!userAuth) {
-        throw new AppError("User does not exist", 404);
-    }
-
-    if (!userAuth.active) {
-        throw new AppError("Account not activated", 401)
-    }
-
-    const existingDescription = await prisma.productDescription.findUnique({
-        where: {
-            id: descriptionId,
-        }
-    }); 
-
-     if (!existingDescription) {
-        throw new AppError("Product description not found", 404);
-    }
-
-
-     let photoUrl = existingProduct.photo;
-        
-        // Handle file uploads if provided
-        if (files && files.length > 0) {
-            const uploadPhotos = await Promise.all(
-                files.map((file, index) =>
-                    cloudinary.uploader.upload(file.path, {
-                        folder: index === 0 ? "products" : "product_descriptions",
-                        public_id: `product_${productId}_${Date.now()}_${index}`,
-                        resource_type: "image"
-                    })
-                )
-            );
-
-            // First image is product photo
-            if (uploadPhotos.length > 0) {
-                photoUrl = uploadPhotos[0].secure_url;
-            }
-        }
-    
-    const updatedImages = await prisma.productDescription.update({
-        where: {
-            id: descriptionId
-        },
-        data: {
-            photo: photoUrl,
-            last_updated: new Date()
-        },
-        include: {
-            product: true
-        }
-    })
-
-    return { result: updatedImages }
-
 }
 
 const createCategory = async (userId, data) => {
@@ -600,40 +517,12 @@ const addToCart = async (userId, productId, data) => {
 
     const result = await prisma.$transaction(async (tx) => {
 
-        const existingCartItem = await tx.cart.findFirst({
-            where: {
-                userId: userAuth.id,
-                productId: existingProduct.id,
-                orderId: null
-            }
-        });
-
-        const productPrice = existingProduct.newPrice ?? existingProduct.price;
-
-        if (existingCartItem) {
-            const newQuantity = existingCartItem.quantity + data.quantity;
-            if (existingProduct.quantity < newQuantity) {
-                throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
-            }
-            
-            const updatedCartItem = await tx.cart.update({
-                where: { id: existingCartItem.id },
-                data: {
-                    quantity: newQuantity,
-                    price: productPrice,
-                    total_price: productPrice.mul(newQuantity)
-                },
-                include: {
-                    user: { omit: { password: true } },
-                    order: true
-                }
-            });
-            return { cart: updatedCartItem };
-        }
-
         if (existingProduct.quantity < data.quantity) {
             throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
         }
+
+
+        const productPrice = existingProduct.newPrice ?? existingProduct.price
 
         const cartItem = await tx.cart.create({
             data: {
@@ -641,17 +530,20 @@ const addToCart = async (userId, productId, data) => {
                 userId: userAuth.id,
                 quantity: data.quantity,
                 price: productPrice,
-                total_price: productPrice.mul(data.quantity)
+                total_price: productPrice * data.quantity
             },
             include: {
                 user: {
-                    omit: { password: true }
+                    omit: {
+                        password: true
+                    }
                 },
                 order: true
             }
-        });
 
-        return { cart: cartItem };
+        })
+
+        return { cart: cartItem }
     })
     return result;
 }
@@ -712,7 +604,7 @@ const editCartItem = async (userId, cartId, data) => {
             data: {
                 quantity: data.quantity,
                 price: productPrice,
-                total_price: productPrice.mul(data.quantity)
+                total_price: productPrice * data.quantity
             },
             include: {
                 user: {
@@ -791,18 +683,17 @@ const getCart = async (userId) => {
     const cartItems = await prisma.cart.findMany({
         where: {
             userId: userAuth.id,
-            orderId: null
-        },
-        include: {
-            product: true
+            checked: false
         }
     })
 
-    if (cartItems.length === 0) {
-        throw new AppError("Cart is empty", 404);
-    }
+    // if (cartItems.length === 0) {
+    //     throw new AppError("Cart is empty", 404);
+    // }
 
-    const totalPrice = cartItems.reduce((total, item) => total + Number(item.total_price), 0);
+    const totalPrice = cartItems
+        .map(item => item.total_price)
+        .reduce((sum, price) => sum + price, 0);
 
     const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
 
@@ -873,7 +764,6 @@ const getProducts = async (userId, page, pageSize) => {
 }
 
 const verifiedProducts = async (userId, page, pageSize) => {
-
     const userAuth = await prisma.user.findUnique({
         where: {
             id: userId
@@ -888,11 +778,14 @@ const verifiedProducts = async (userId, page, pageSize) => {
         throw new AppError("Unauthorized user", 403);
     }
 
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 403)
+    }
 
     const products = await prisma.product.findMany({
         where: {
-            approved: 'approved',
-            draft: false
+            draft: false,
+            approved: 'approved'
         },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -904,7 +797,7 @@ const verifiedProducts = async (userId, page, pageSize) => {
     })
 
     return products;
-    
+
 }
 
 module.exports = {
@@ -913,7 +806,6 @@ module.exports = {
     updateProduct,
     addDescription,
     updateProductDescription,
-    uploadProductImages,
     createCategory,
     productApproval,
     productPublish,

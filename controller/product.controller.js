@@ -243,6 +243,7 @@ const get_products =  async (req, res, next) => {
         const products = await productService.getProducts(userId, page, pageSize);
         res.success(products, "Products retrieved successfully")
     } catch(e) {
+        console.log(e)
         next(e);
     }
 }
@@ -281,7 +282,7 @@ const verified_products = async (req, res, next) => {
         const categories = await productService.verifiedProducts(userId, page, pageSize);
         res.success(categories, "Products retrieved successfully")
     } catch(e) {
-        // console.log(e);
+        console.log(e);
         next(e);
     }
 }

@@ -112,6 +112,8 @@ model Cart {
   userId String
   user   User   @relation("CartUser", fields: [userId], references: [id])
 
+  checked Boolean? @default(false)
+
   orderId     String?
   order       Order?           @relation("cartOrder", fields: [orderId], references: [id])
   quantity    Int              @default(1)
@@ -129,6 +131,7 @@ enum orderStatus {
   pending
   processing
   successful
+  failed
 }
 
 model Order {
@@ -139,7 +142,7 @@ model Order {
   purchased   Boolean      @default(false)
   total_price Decimal      @db.Decimal(10, 2)
   txRef       String?
-  status      orderStatus?
+  status      orderStatus? @default(pending)
   orderedDate DateTime     @default(now())
 
   carts Cart[] @relation("cartOrder")

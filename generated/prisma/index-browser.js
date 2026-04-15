@@ -171,6 +171,7 @@ exports.Prisma.CartScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
   userId: 'userId',
+  checked: 'checked',
   orderId: 'orderId',
   quantity: 'quantity',
   price: 'price',
@@ -238,7 +239,8 @@ exports.productStatus = exports.$Enums.productStatus = {
 exports.orderStatus = exports.$Enums.orderStatus = {
   pending: 'pending',
   processing: 'processing',
-  successful: 'successful'
+  successful: 'successful',
+  failed: 'failed'
 };
 
 exports.Prisma.ModelName = {

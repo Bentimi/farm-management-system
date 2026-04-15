@@ -94,7 +94,8 @@ export type productStatus = (typeof productStatus)[keyof typeof productStatus]
 export const orderStatus: {
   pending: 'pending',
   processing: 'processing',
-  successful: 'successful'
+  successful: 'successful',
+  failed: 'failed'
 };
 
 export type orderStatus = (typeof orderStatus)[keyof typeof orderStatus]
@@ -6444,6 +6445,7 @@ export namespace Prisma {
     id: string | null
     productId: string | null
     userId: string | null
+    checked: boolean | null
     orderId: string | null
     quantity: number | null
     price: Decimal | null
@@ -6455,6 +6457,7 @@ export namespace Prisma {
     id: string | null
     productId: string | null
     userId: string | null
+    checked: boolean | null
     orderId: string | null
     quantity: number | null
     price: Decimal | null
@@ -6466,6 +6469,7 @@ export namespace Prisma {
     id: number
     productId: number
     userId: number
+    checked: number
     orderId: number
     quantity: number
     price: number
@@ -6491,6 +6495,7 @@ export namespace Prisma {
     id?: true
     productId?: true
     userId?: true
+    checked?: true
     orderId?: true
     quantity?: true
     price?: true
@@ -6502,6 +6507,7 @@ export namespace Prisma {
     id?: true
     productId?: true
     userId?: true
+    checked?: true
     orderId?: true
     quantity?: true
     price?: true
@@ -6513,6 +6519,7 @@ export namespace Prisma {
     id?: true
     productId?: true
     userId?: true
+    checked?: true
     orderId?: true
     quantity?: true
     price?: true
@@ -6611,6 +6618,7 @@ export namespace Prisma {
     id: string
     productId: string
     userId: string
+    checked: boolean | null
     orderId: string | null
     quantity: number
     price: Decimal
@@ -6641,6 +6649,7 @@ export namespace Prisma {
     id?: boolean
     productId?: boolean
     userId?: boolean
+    checked?: boolean
     orderId?: boolean
     quantity?: boolean
     price?: boolean
@@ -6657,6 +6666,7 @@ export namespace Prisma {
     id?: boolean
     productId?: boolean
     userId?: boolean
+    checked?: boolean
     orderId?: boolean
     quantity?: boolean
     price?: boolean
@@ -6671,6 +6681,7 @@ export namespace Prisma {
     id?: boolean
     productId?: boolean
     userId?: boolean
+    checked?: boolean
     orderId?: boolean
     quantity?: boolean
     price?: boolean
@@ -6685,6 +6696,7 @@ export namespace Prisma {
     id?: boolean
     productId?: boolean
     userId?: boolean
+    checked?: boolean
     orderId?: boolean
     quantity?: boolean
     price?: boolean
@@ -6692,7 +6704,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type CartOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "userId" | "orderId" | "quantity" | "price" | "total_price" | "createdAt", ExtArgs["result"]["cart"]>
+  export type CartOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "productId" | "userId" | "checked" | "orderId" | "quantity" | "price" | "total_price" | "createdAt", ExtArgs["result"]["cart"]>
   export type CartInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProductDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -6723,6 +6735,7 @@ export namespace Prisma {
       id: string
       productId: string
       userId: string
+      checked: boolean | null
       orderId: string | null
       quantity: number
       price: Prisma.Decimal
@@ -7158,6 +7171,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Cart", 'String'>
     readonly productId: FieldRef<"Cart", 'String'>
     readonly userId: FieldRef<"Cart", 'String'>
+    readonly checked: FieldRef<"Cart", 'Boolean'>
     readonly orderId: FieldRef<"Cart", 'String'>
     readonly quantity: FieldRef<"Cart", 'Int'>
     readonly price: FieldRef<"Cart", 'Decimal'>
@@ -9947,6 +9961,7 @@ export namespace Prisma {
     id: 'id',
     productId: 'productId',
     userId: 'userId',
+    checked: 'checked',
     orderId: 'orderId',
     quantity: 'quantity',
     price: 'price',
@@ -10487,6 +10502,7 @@ export namespace Prisma {
     id?: StringFilter<"Cart"> | string
     productId?: StringFilter<"Cart"> | string
     userId?: StringFilter<"Cart"> | string
+    checked?: BoolNullableFilter<"Cart"> | boolean | null
     orderId?: StringNullableFilter<"Cart"> | string | null
     quantity?: IntFilter<"Cart"> | number
     price?: DecimalFilter<"Cart"> | Decimal | DecimalJsLike | number | string
@@ -10502,6 +10518,7 @@ export namespace Prisma {
     id?: SortOrder
     productId?: SortOrder
     userId?: SortOrder
+    checked?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
     quantity?: SortOrder
     price?: SortOrder
@@ -10520,6 +10537,7 @@ export namespace Prisma {
     NOT?: CartWhereInput | CartWhereInput[]
     productId?: StringFilter<"Cart"> | string
     userId?: StringFilter<"Cart"> | string
+    checked?: BoolNullableFilter<"Cart"> | boolean | null
     orderId?: StringNullableFilter<"Cart"> | string | null
     quantity?: IntFilter<"Cart"> | number
     price?: DecimalFilter<"Cart"> | Decimal | DecimalJsLike | number | string
@@ -10535,6 +10553,7 @@ export namespace Prisma {
     id?: SortOrder
     productId?: SortOrder
     userId?: SortOrder
+    checked?: SortOrderInput | SortOrder
     orderId?: SortOrderInput | SortOrder
     quantity?: SortOrder
     price?: SortOrder
@@ -10554,6 +10573,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Cart"> | string
     productId?: StringWithAggregatesFilter<"Cart"> | string
     userId?: StringWithAggregatesFilter<"Cart"> | string
+    checked?: BoolNullableWithAggregatesFilter<"Cart"> | boolean | null
     orderId?: StringNullableWithAggregatesFilter<"Cart"> | string | null
     quantity?: IntWithAggregatesFilter<"Cart"> | number
     price?: DecimalWithAggregatesFilter<"Cart"> | Decimal | DecimalJsLike | number | string
@@ -11045,6 +11065,7 @@ export namespace Prisma {
 
   export type CartCreateInput = {
     id?: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -11059,6 +11080,7 @@ export namespace Prisma {
     id?: string
     productId: string
     userId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -11069,6 +11091,7 @@ export namespace Prisma {
 
   export type CartUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11083,6 +11106,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11095,6 +11119,7 @@ export namespace Prisma {
     id?: string
     productId: string
     userId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -11104,6 +11129,7 @@ export namespace Prisma {
 
   export type CartUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11114,6 +11140,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -11748,6 +11775,11 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -11762,6 +11794,7 @@ export namespace Prisma {
     id?: SortOrder
     productId?: SortOrder
     userId?: SortOrder
+    checked?: SortOrder
     orderId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
@@ -11779,6 +11812,7 @@ export namespace Prisma {
     id?: SortOrder
     productId?: SortOrder
     userId?: SortOrder
+    checked?: SortOrder
     orderId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
@@ -11790,6 +11824,7 @@ export namespace Prisma {
     id?: SortOrder
     productId?: SortOrder
     userId?: SortOrder
+    checked?: SortOrder
     orderId?: SortOrder
     quantity?: SortOrder
     price?: SortOrder
@@ -11801,6 +11836,14 @@ export namespace Prisma {
     quantity?: SortOrder
     price?: SortOrder
     total_price?: SortOrder
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type EnumorderStatusNullableFilter<$PrismaModel = never> = {
@@ -12389,6 +12432,10 @@ export namespace Prisma {
     connect?: ProductInvoiceWhereUniqueInput | ProductInvoiceWhereUniqueInput[]
   }
 
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
   export type ProductUpdateOneRequiredWithoutCartsNestedInput = {
     create?: XOR<ProductCreateWithoutCartsInput, ProductUncheckedCreateWithoutCartsInput>
     connectOrCreate?: ProductCreateOrConnectWithoutCartsInput
@@ -12827,6 +12874,19 @@ export namespace Prisma {
     _max?: NestedEnumproductStatusFilter<$PrismaModel>
   }
 
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumorderStatusNullableFilter<$PrismaModel = never> = {
     equals?: $Enums.orderStatus | EnumorderStatusFieldRefInput<$PrismaModel> | null
     in?: $Enums.orderStatus[] | ListEnumorderStatusFieldRefInput<$PrismaModel> | null
@@ -12938,6 +12998,7 @@ export namespace Prisma {
 
   export type CartCreateWithoutUserInput = {
     id?: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -12950,6 +13011,7 @@ export namespace Prisma {
   export type CartUncheckedCreateWithoutUserInput = {
     id?: string
     productId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -13095,6 +13157,7 @@ export namespace Prisma {
     id?: StringFilter<"Cart"> | string
     productId?: StringFilter<"Cart"> | string
     userId?: StringFilter<"Cart"> | string
+    checked?: BoolNullableFilter<"Cart"> | boolean | null
     orderId?: StringNullableFilter<"Cart"> | string | null
     quantity?: IntFilter<"Cart"> | number
     price?: DecimalFilter<"Cart"> | Decimal | DecimalJsLike | number | string
@@ -13290,6 +13353,7 @@ export namespace Prisma {
 
   export type CartCreateWithoutProductInput = {
     id?: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -13302,6 +13366,7 @@ export namespace Prisma {
   export type CartUncheckedCreateWithoutProductInput = {
     id?: string
     userId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -13963,6 +14028,7 @@ export namespace Prisma {
 
   export type CartCreateWithoutOrderInput = {
     id?: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -13976,6 +14042,7 @@ export namespace Prisma {
     id?: string
     productId: string
     userId: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -14107,6 +14174,7 @@ export namespace Prisma {
 
   export type CartCreateWithoutInvoicesInput = {
     id?: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -14120,6 +14188,7 @@ export namespace Prisma {
     id?: string
     productId: string
     userId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -14196,6 +14265,7 @@ export namespace Prisma {
 
   export type CartUpdateWithoutInvoicesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14209,6 +14279,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14251,6 +14322,7 @@ export namespace Prisma {
   export type CartCreateManyUserInput = {
     id?: string
     productId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -14379,6 +14451,7 @@ export namespace Prisma {
 
   export type CartUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14391,6 +14464,7 @@ export namespace Prisma {
   export type CartUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14402,6 +14476,7 @@ export namespace Prisma {
   export type CartUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14466,6 +14541,7 @@ export namespace Prisma {
   export type CartCreateManyProductInput = {
     id?: string
     userId: string
+    checked?: boolean | null
     orderId?: string | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
@@ -14496,6 +14572,7 @@ export namespace Prisma {
 
   export type CartUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14508,6 +14585,7 @@ export namespace Prisma {
   export type CartUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14519,6 +14597,7 @@ export namespace Prisma {
   export type CartUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orderId?: NullableStringFieldUpdateOperationsInput | string | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14622,6 +14701,7 @@ export namespace Prisma {
     id?: string
     productId: string
     userId: string
+    checked?: boolean | null
     quantity?: number
     price: Decimal | DecimalJsLike | number | string
     total_price: Decimal | DecimalJsLike | number | string
@@ -14630,6 +14710,7 @@ export namespace Prisma {
 
   export type CartUpdateWithoutOrderInput = {
     id?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14643,6 +14724,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -14654,6 +14736,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     productId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    checked?: NullableBoolFieldUpdateOperationsInput | boolean | null
     quantity?: IntFieldUpdateOperationsInput | number
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string

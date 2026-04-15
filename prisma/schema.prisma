@@ -114,7 +114,7 @@ model Cart {
   userId       String
   user         User      @relation("CartUser", fields: [userId], references: [id])
 
-  checked     Boolean   @default(false)
+  checked     Boolean?   @default(false)
 
   orderId      String?
   order        Order?      @relation("cartOrder", fields: [orderId], references: [id])
