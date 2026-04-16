@@ -770,7 +770,12 @@ const getCart = async (userId) => {
             checked: false
         },
         include: {
-            product: true
+            product: {
+                include: {
+                    category: true,
+                    descriptions: true
+                }
+            }
         }
     })
 
@@ -865,9 +870,9 @@ const verifiedProducts = async (userId, page, pageSize) => {
         throw new AppError("Unauthorized user", 403);
     }
 
-    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
-        throw new AppError("Unauthorized user", 403)
-    }
+    // if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+    //     throw new AppError("Unauthorized user", 403)
+    // }
 
     const products = await prisma.product.findMany({
         where: {

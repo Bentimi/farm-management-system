@@ -10,6 +10,7 @@ const { responseHandler } = require("./middleware/responseHandler.middleware");
 const userRoutes = require("./routes/user.route");
 const productRoutes = require("./routes/product.route");
 const paymentRoutes = require("./routes/payment.route");
+const orderRoutes = require("./routes/order.route");
 require("dotenv").config();
 
 const app = express();
@@ -40,6 +41,7 @@ app.get('/', (req, res) => {
 app.use('/user', userRoutes);
 app.use('/product', productRoutes);
 app.use('/payment', paymentRoutes);
+app.use('/order', orderRoutes);
 
 
 app.use(errorHandler);
