@@ -599,6 +599,18 @@ const addToCart = async (userId, productId, data) => {
         throw new AppError("Product not found", 404);
     }
 
+    const existingCart = await prisma.cart.findFirst({
+        where: {
+            productId: productId,
+            userId: userAuth.id,
+            checked: true
+        }
+    })
+
+    if (existingCart) {
+        throw new AppError("Cart already exist", 400)
+    }
+
     const result = await prisma.$transaction(async (tx) => {
 
         if (existingProduct.quantity < data.quantity) {
