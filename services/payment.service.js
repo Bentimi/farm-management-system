@@ -116,8 +116,18 @@ const createRedirectUrl = async (userId, data) => {
 
     await prisma.$transaction(async (tx) => {
 
-        const createorder = await tx.order.create({
-            data: {
+        
+        const createorder = await tx.order.upsert({
+            where: {
+                userId: userAuth.id,
+                purchased: false
+            },
+            update: {
+                status: 'pending',
+                txRef: txRef,
+                total_price: totalAmount
+            },
+            create: {
                 status: 'pending',
                 orderedUserId: userAuth.id,
                 txRef: txRef,
