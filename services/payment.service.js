@@ -67,8 +67,20 @@ const createRedirectUrl = async (userId, data) => {
                 total_price: true
             }
         })
-    
+        
+        const subtotal = Number(userCart._sum.total_price);
+
+        const taxRate = 0.075;
+        const tax = subtotal * taxRate;
+
         const totalAmount = Number(userCart._sum.total_price) * 1.075
+
+        console.log(`
+                Subtotal: ${subtotal}
+                Tax Rate: ${taxRate}
+                Tax: ${tax}
+                Total Amount: ${totalAmount}
+            `)
     
         if (totalAmount <= 0) {
             throw new AppError("Cart is empty", 400)

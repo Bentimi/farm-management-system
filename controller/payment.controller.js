@@ -18,17 +18,17 @@ const create_redirectUrl = async (req, res, next) => {
 
 }
 
-const flutterwave_webhook = async (req, res, next) => {
-    try {
+// const flutterwave_webhook = async (req, res, next) => {
+//     try {
 
-        const result = await paymentService.flutterwaveWebhook(req, res)
-        res.success(result, "Webhook received")
-    } catch (e) {
-        res.status(200).end();
-    }
-}
+//         const result = await paymentService.flutterwaveWebhook(req, res)
+//         res.success(result, "Webhook received")
+//     } catch (e) {
+//         res.status(200).end();
+//     }
+// }
 
 module.exports = {
     create_redirectUrl,
-    flutterwave_webhook
+    // flutterwave_webhook
 }
