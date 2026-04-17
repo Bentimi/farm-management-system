@@ -603,7 +603,7 @@ const addToCart = async (userId, productId, data) => {
         where: {
             productId: productId,
             userId: userAuth.id,
-            checked: true
+            checked: false
         }
     })
 
