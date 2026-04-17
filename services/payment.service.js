@@ -228,10 +228,12 @@ const flutterwaveWebhook = async (req, res) => {
            Payment Ref => ${existingPayment.txRef}
         }
         `)
+        typeof(existingPayment.total_price)
+        typeof(response.data.data.amount)
     
     if (
         response?.data?.data?.status === "successful"
-        && response?.data?.data?.amount === existingPayment.total_price
+        && response?.data?.data?.amount === Number(existingPayment.total_price)
         && response?.data?.data?.tx_ref === existingPayment.txRef ) {
 
         const updatedOrder = await tx.order.update({
