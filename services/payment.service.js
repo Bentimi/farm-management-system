@@ -141,21 +141,22 @@ const createRedirectUrl = async (userId, data) => {
 
 const flutterwaveWebhook = async (req, res) => {
 
-    // const flw = new Flutterwave(
-    //         process.env.FLW_PUBLIC_KEY,
-    //         process.env.FLW_SECRET_KEY
-    //     )
-
-
-
-    // If you specified a secret hash, check for the signature
-
-    const secretHash = process.env.FLW_SECRET_HASH;
-    const signature = req.headers["verif-hash"];
-    if (!signature || (signature !== secretHash)) {
-        // This request isn't from Flutterwave; discard
-        throw new AppError("Unauthorized request", 401)
+    try {
+        const secretHash = process.env.FLW_SECRET_HASH;
+    if (!secretHash) {
+        console.error("FLW_WEBHOOK_SECRET not set");
+        return res.status(500).json("Internal server error")
     }
+
+    const signature = req.headers["verif-hash"];
+        if(!signature) return res.status(401).json({'message': 'Unauthorized Access'});
+
+    
+    if ((secretHash !== signature) || !signature) {
+        console.error("Invalid Flutterwave signature");
+        return res.status(401).json({'message' :'Unauthorized Access'});
+    }
+
     const payload = req.body;
     console.log(`Webhook payload ${payload}`)
 
@@ -188,6 +189,10 @@ const flutterwaveWebhook = async (req, res) => {
     // const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
 
     // }
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json('Internal server error')
+    }
 
 }
 
