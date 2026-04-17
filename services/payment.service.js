@@ -216,6 +216,18 @@ const flutterwaveWebhook = async (req, res) => {
             status: 'processing'
         }
     })
+
+    console.log(`
+        Status: ${response.data.data.status}
+        Total Price: {
+           Respose Price => ${response.data.data.amount} 
+           Payment Price => ${existingPayment.total_price}
+        }
+        TNX Ref: {
+           Respose Ref => ${response.data.data.tx_ref} 
+           Payment Ref => ${existingPayment.txRef}
+        }
+        `)
     
     if (
         response?.data?.data?.status === "successful"
