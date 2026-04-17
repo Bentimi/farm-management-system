@@ -158,7 +158,7 @@ const flutterwaveWebhook = async (req, res) => {
     }
 
     const payload = req.body;
-    console.log(`Webhook payload ${payload}`)
+    console.log("Webhook payload:", payload); 
 
     // const existingEvent = await PaymentEvent.where({id: payload.id}).find();
     //     if (existingEvent.status === payload.status) {
@@ -175,15 +175,15 @@ const flutterwaveWebhook = async (req, res) => {
     // console.log(payload);
     // Do something (that doesn't take too long) with the payload
     // const response = await flw.Transaction.verify({id: payload.id});
-    if (
-        response.data.status === "successful"
-        && response.data.amount === expectedAmount
-        && response.data.currency === expectedCurrency
-        && response.data.tx_ref === expectedReference ) {
-        // Success! Confirm the customer's payment
-    } else {
-        // Inform the customer their payment was unsuccessful
-    }
+    // if (
+    //     response.data.status === "successful"
+    //     && response.data.amount === expectedAmount
+    //     && response.data.currency === expectedCurrency
+    //     && response.data.tx_ref === expectedReference ) {
+    //     // Success! Confirm the customer's payment
+    // } else {
+    //     // Inform the customer their payment was unsuccessful
+    // }
     
     
     // const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
