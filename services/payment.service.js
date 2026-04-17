@@ -196,6 +196,8 @@ const flutterwaveWebhook = async (req, res) => {
             }
         });
     }
+
+    console.log("Webhook Response", response)
     
 
 
@@ -221,9 +223,9 @@ const flutterwaveWebhook = async (req, res) => {
     })
     
     if (
-        response.data.status === "successful"
-        && response.data.amount === verifyOrder.total_price
-        && response.data.tx_ref === verifyOrder.txRef ) {
+        response.data.data.status === "successful"
+        && response.data.data.amount === verifyOrder.total_price
+        && response.data.data.tx_ref === verifyOrder.txRef ) {
 
         const updatedOrder = await tx.order.update({
         where: {
