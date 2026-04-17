@@ -116,11 +116,17 @@ const createRedirectUrl = async (userId, data) => {
 
     await prisma.$transaction(async (tx) => {
 
+        const existingOrder = await tx.order.findFirst({
+            where: {
+                 orderedUserId: userAuth.id,
+                 purchased: false
+            }
+        })
+
         
         const createorder = await tx.order.upsert({
             where: {
-                orderedUserId: userAuth.id,
-                purchased: false
+                id: existingOrder.id
             },
             update: {
                 status: 'pending',
@@ -258,18 +264,34 @@ const flutterwaveWebhook = async (req, res) => {
         
         const carts = await tx.cart.findMany({
             where: {
-                order: existingPayment.id
-            }
+                orderId: existingPayment.id
+            },
+            include: {
+                product: true,
+        }
         }) 
         
         await tx.cart.updateMany({
             where: {
-                order: existingPayment.id
+                orderId: existingPayment.id
             },
             data: {
                 checked: true
             }
         })
+
+        for (const cart of carts) {
+            if (cart.product && cart.quantity > 0) {
+                await tx.product.update({
+                    where: { id: cart.productId },
+                    data: {
+                        quantity: {
+                            decrement: cart.quantity
+                        }
+                    }
+                });
+            }
+    }
 
        await tx.productInvoice.createMany({
             data: carts.map(cart =>( {

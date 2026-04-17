@@ -6,13 +6,13 @@ const create_redirectUrl = async (req, res, next) => {
 
         const userId = req.user.id;
         const data = req.body;
-        console.log(data)
+        // console.log(data)
         const result = await paymentService.createRedirectUrl(userId, data);
         // console.log(result)
         res.success(result, "Payment link created successfully")
 
     } catch (e) {
-        // console.log(e)
+        console.log(e)
         next(e);
     }
 
