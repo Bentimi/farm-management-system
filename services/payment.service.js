@@ -146,9 +146,6 @@ const flutterwaveWebhook = async (req, res) => {
             process.env.FLW_SECRET_KEY
         )
 
-    const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
-
-    }
 
 
     // If you specified a secret hash, check for the signature
@@ -187,6 +184,10 @@ const flutterwaveWebhook = async (req, res) => {
         // Inform the customer their payment was unsuccessful
     }
     
+    
+    // const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
+
+    // }
 
 }
 
