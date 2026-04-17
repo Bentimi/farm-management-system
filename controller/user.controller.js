@@ -39,7 +39,7 @@ const login_user = async (req, res, next) => {
         const cookieOptions = {
             httpOnly: true,
             secure: isProduction,
-            sameSite: 'strict'
+            sameSite: isProduction ? 'none' : 'lax'
         };
 
         res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });

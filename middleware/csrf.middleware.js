@@ -17,7 +17,7 @@ function generateToken(req, res) {
     res.cookie("x-csrf-token", csrfToken, {
         httpOnly: false,
         secure: isProduction,
-        sameSite: "strict",
+        sameSite: isProduction ? 'none' : 'lax',
         path: "/",
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });

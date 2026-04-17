@@ -24,7 +24,8 @@ app.use(cors({
         'http://localhost:5173',
         'http://localhost:5174',
         'http://localhost:5175',
-    ],
+        process.env.FRONTEND_URL,  // e.g. 'https://your-app.vercel.app'
+    ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']
