@@ -160,35 +160,120 @@ const flutterwaveWebhook = async (req, res) => {
     const payload = req.body;
     console.log("Webhook payload:", payload); 
 
-    // const existingEvent = await PaymentEvent.where({id: payload.id}).find();
-    //     if (existingEvent.status === payload.status) {
-    //         // The status hasn't changed,
-    //         // so it's probably just a duplicate event
-    //         // and we can discard it
-    //         res.status(200).json().end();
-    //     }
+    res.status(200).end();
 
-    //     // Record this event
-    //     await PaymentEvent.save(payload);
+    const txRef = payload?.data?.tx_ref;
+    const status = payload?.data?.status;
 
-    // It's a good idea to log all received events.
-    // console.log(payload);
-    // Do something (that doesn't take too long) with the payload
-    // const response = await flw.Transaction.verify({id: payload.id});
-    // if (
-    //     response.data.status === "successful"
-    //     && response.data.amount === expectedAmount
-    //     && response.data.currency === expectedCurrency
-    //     && response.data.tx_ref === expectedReference ) {
-    //     // Success! Confirm the customer's payment
-    // } else {
-    //     // Inform the customer their payment was unsuccessful
-    // }
+    if (!txRef) {
+        console.log("Missing tx_ref");
+        return;
+    }
+
+   const existingPayment = await prisma.order.findUnique({
+        where: {
+            txRef
+        }
+   })
+
+   if (!existingPayment) {
+       console.log('Transaction Reference do not exist' )
+       return;
+   }
+
+    
+   if (existingPayment.status === 'successful' || existingPayment.status === 'failed') {
+        console.log("Already finalized:", txRef);
+        return
+   }
+
+   if (payload.event === 'charge.completed' && payload.data.status === 'successful') {
+
+        const  response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
+            headers: {
+                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+            }
+        });
+    }
+    
+
+
+    const verifyOrder = await prisma.order.findUnique({
+        where: {
+            txRef
+        }
+    })
+
+    if (!verifyOrder) {
+        console.log('Order do not exist')
+        return
+    }
+
+    await prisma.$transaction( async (tx) => {
+        await tx.order.update({
+        where: {
+            txRef
+        },
+        data: {
+            status: 'processing'
+        }
+    })
+    
+    if (
+        response.data.status === "successful"
+        && response.data.amount === verifyOrder.total_price
+        && response.data.tx_ref === verifyOrder.txRef ) {
+
+        const updatedOrder = await tx.order.update({
+        where: {
+            txRef
+        },
+        data: {
+            status: 'successful',
+            purchased: true
+        }
+        })
+        
+        const carts = await tx.cart.findMany({
+            where: {
+                orderId: updatedOrder.id
+            }
+        }) 
+        
+        await tx.cart.updateMany({
+            where: {
+                orderId: updatedOrder.id
+            },
+            data: {
+                checked: true
+            }
+        })
+
+       await tx.productInvoice.createMany({
+            data: carts.map(cart =>( {
+                cartId: cart.id,
+                productPrice: cart.price,
+                invoiceUserId: cart.userId
+            }))
+        })
+
+        console.log('Payment successful')
+
+    } else {
+         const updatedOrder = await tx.order.update({
+        where: {
+            txRef
+        },
+        data: {
+            status: 'failed',
+            purchased: true
+        }
+        })
+        console.log('Payment Failed')
+    }
+    })
     
     
-    // const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
-
-    // }
     } catch (e) {
         console.log(e)
         return res.status(500).json('Internal server error')
