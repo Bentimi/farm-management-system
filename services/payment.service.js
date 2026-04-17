@@ -150,10 +150,12 @@ const createRedirectUrl = async (userId, data) => {
             })
         } else {
             createOrder = await tx.order.create({
+                data: {
                 status: 'pending',
                 orderedUserId: userAuth.id,
                 txRef: txRef,
                 total_price: totalAmount
+               }
             })
         }
 
