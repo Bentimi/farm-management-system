@@ -220,16 +220,16 @@ const flutterwaveWebhook = async (req, res) => {
     console.log(`
         Status: ${response.data.data.status}
         Total Price: {
-           Respose Price => ${response.data.data.amount} 
+           Response Price => ${response.data.data.amount} 
            Payment Price => ${existingPayment.total_price}
         }
         TNX Ref: {
-           Respose Ref => ${response.data.data.tx_ref} 
+           Response Ref => ${response.data.data.tx_ref} 
            Payment Ref => ${existingPayment.txRef}
         }
         `)
-        typeof(existingPayment.total_price)
-        typeof(response.data.data.amount)
+        console.log(typeof(existingPayment.total_price))
+        console.log(typeof(response.data.data.amount))
     
     if (
         response?.data?.data?.status === "successful"
@@ -248,13 +248,13 @@ const flutterwaveWebhook = async (req, res) => {
         
         const carts = await tx.cart.findMany({
             where: {
-                orderId: updatedOrder.id
+                order: existingPayment.id
             }
         }) 
         
         await tx.cart.updateMany({
             where: {
-                orderId: updatedOrder.id
+                order: existingPayment.id
             },
             data: {
                 checked: true
