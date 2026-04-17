@@ -72,15 +72,7 @@ const createRedirectUrl = async (userId, data) => {
 
         const taxRate = 0.075;
         const tax = subtotal * taxRate;
-
-        const totalAmount = Number(userCart._sum.total_price) * 1.075
-
-        console.log(`
-                Subtotal: ${subtotal}
-                Tax Rate: ${taxRate}
-                Tax: ${tax}
-                Total Amount: ${totalAmount}
-            `)
+        const totalAmount = subtotal + tax
     
         if (totalAmount <= 0) {
             throw new AppError("Cart is empty", 400)
@@ -145,16 +137,18 @@ const createRedirectUrl = async (userId, data) => {
                 data: {
                     status: 'pending',
                     txRef: txRef,
-                    total_price: totalAmount
+                    total_price: totalAmount,
+                    taxFee: tax
                 }
             })
         } else {
             createOrder = await tx.order.create({
                 data: {
-                status: 'pending',
-                orderedUserId: userAuth.id,
-                txRef: txRef,
-                total_price: totalAmount
+                    status: 'pending',
+                    orderedUserId: userAuth.id,
+                    txRef: txRef,
+                    total_price: totalAmount,
+                    taxFee: tax
                }
             })
         }
@@ -277,7 +271,8 @@ const flutterwaveWebhook = async (req, res) => {
         },
         data: {
             status: 'successful',
-            purchased: true
+            purchased: true,
+            verifiedAt: new Date()
         }
         })
         
@@ -329,7 +324,8 @@ const flutterwaveWebhook = async (req, res) => {
             },
             data: {
                 status: 'failed',
-                purchased: false
+                purchased: false,
+                verifiedAt: new Date()
             }
         })
 
