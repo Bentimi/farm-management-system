@@ -141,10 +141,10 @@ const createRedirectUrl = async (userId, data) => {
 
 const flutterwaveWebhook = async (req, res) => {
 
-    const flw = new Flutterwave(
-            process.env.FLW_PUBLIC_KEY,
-            process.env.FLW_SECRET_KEY
-        )
+    // const flw = new Flutterwave(
+    //         process.env.FLW_PUBLIC_KEY,
+    //         process.env.FLW_SECRET_KEY
+    //     )
 
 
 
