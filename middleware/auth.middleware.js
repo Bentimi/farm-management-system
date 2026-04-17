@@ -35,27 +35,18 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ status: 'error', message: 'Session expired. Please log in again.' });
         }
 
-        // Token rotation: invalidate old refresh token
-        await redisClient.del(`refresh_token:${oldRefreshToken}`);
-        await redisClient.sRem(`user:${userId}:tokens`, oldRefreshToken);
-
-        // Issue new tokens
+        // Issue new access token only (do NOT rotate refresh token)
+        // This prevents race conditions where concurrent requests clear the session!
         const newAccessToken = JWT.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const newRefreshToken = uuidv4();
-        const SEVEN_DAYS = 7 * 24 * 60 * 60;
-
-        await redisClient.set(`refresh_token:${newRefreshToken}`, userId, { EX: SEVEN_DAYS });
-        await redisClient.sAdd(`user:${userId}:tokens`, newRefreshToken);
 
         const isProduction = process.env.NODE_ENV === "production";
         const cookieOptions = {
             httpOnly: true,
             secure: isProduction,
-            sameSite: isProduction ? 'none' : 'lax'
+            sameSite: 'strict'
         };
 
         res.cookie('accessToken', newAccessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
-        res.cookie('refreshToken', newRefreshToken, { ...cookieOptions, maxAge: SEVEN_DAYS * 1000 });
 
         req.user = JWT.verify(newAccessToken, process.env.JWT_SECRET);
         next();

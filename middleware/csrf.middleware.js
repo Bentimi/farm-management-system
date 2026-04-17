@@ -1,29 +1,4 @@
-const crypto = require("crypto");
 const AppError = require("../utils/AppError.utils");
-
-const CSRF_SECRET = process.env.CSRF_SECRET || 'fallback-secret-development';
-
-function generateHmac(message) {
-    return crypto.createHmac("sha256", CSRF_SECRET).update(message).digest("hex");
-}
-
-function generateToken(req, res) {
-    const randomValue = crypto.randomBytes(32).toString("hex");
-    const hmac = generateHmac(randomValue);
-    const csrfToken = `${hmac}.${randomValue}`;
-
-    const isProduction = process.env.NODE_ENV === "production";
-    
-    res.cookie("x-csrf-token", csrfToken, {
-        httpOnly: false,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
-    return csrfToken;
-}
 
 function doubleCsrfProtection(req, res, next) {
     const ignoredMethods = ["GET", "HEAD", "OPTIONS"];
@@ -31,33 +6,21 @@ function doubleCsrfProtection(req, res, next) {
         return next();
     }
 
-    const csrfCookie = req.cookies["x-csrf-token"];
-    const csrfHeader = req.headers["x-csrf-token"];
-
-    if (!csrfCookie || !csrfHeader) {
-        return next(new AppError("Missing CSRF token", 403));
-    }
-
-    if (csrfCookie !== csrfHeader) {
-        return next(new AppError("Invalid CSRF token", 403));
-    }
-
-    const parts = csrfCookie.split(".");
-    if (parts.length !== 2) {
-        return next(new AppError("Malformed CSRF token", 403));
-    }
-
-    const [hmac, randomValue] = parts;
-
-    const expectedHmac = generateHmac(randomValue);
-    if (hmac !== expectedHmac) {
-        return next(new AppError("Tampered CSRF token", 403));
+    // Check for custom header that only our frontend sends
+    const requestedWith = req.headers['x-requested-with'];
+    if (requestedWith !== 'XMLHttpRequest') {
+        return next(new AppError("CSRF validation failed", 403));
     }
 
     next();
 }
 
+function generateToken(req, res) {
+    // No longer required for custom header approach, but kept for compatibility
+    return "deprecated";
+}
+
 module.exports = {
-   doubleCsrfProtection, 
-   generateToken
+    doubleCsrfProtection,
+    generateToken
 };

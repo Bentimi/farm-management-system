@@ -28,7 +28,7 @@ app.use(cors({
     ].filter(Boolean),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token']
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
 }));
 app.use(morgan("combined"));
 app.use(bodyParser.json());

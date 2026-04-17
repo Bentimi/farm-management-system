@@ -3,7 +3,6 @@ const JWT = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 const userService = require("../services/user.service");
 const redisClient = require("../lib/redis.client");
-const { generateToken } = require("../middleware/csrf.middleware");
 
 const create_user = async (req, res, next) => {
     try {
@@ -39,15 +38,11 @@ const login_user = async (req, res, next) => {
         const cookieOptions = {
             httpOnly: true,
             secure: isProduction,
-            sameSite: isProduction ? 'none' : 'lax'
+            sameSite: 'strict'
         };
 
         res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
         res.cookie('refreshToken', refreshToken, { ...cookieOptions, maxAge: SEVEN_DAYS * 1000 });
-
-
-        // Generate and rotate CSRF token automatically at login
-        const csrfToken = generateToken(req, res, { overwrite: true });
 
         res.success(user, "Login successful");
     } catch (e) {
@@ -68,7 +63,6 @@ const logout_user = async (req, res, next) => {
         }
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
-        res.clearCookie('x-csrf-token');
         res.success(null, "Logout successful");
     } catch (e) {
         next(e);
