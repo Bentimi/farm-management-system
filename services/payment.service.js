@@ -144,7 +144,7 @@ const flutterwaveWebhook = async (req, res) => {
     try {
         const secretHash = process.env.FLW_SECRET_HASH;
     if (!secretHash) {
-        console.error("FLW_WEBHOOK_SECRET not set");
+        console.error("FLW_SECRET_HASH not set");
         return res.status(500).json("Internal server error")
     }
 
@@ -152,7 +152,7 @@ const flutterwaveWebhook = async (req, res) => {
         if(!signature) return res.status(401).json({'message': 'Unauthorized Access'});
 
     
-    if ((secretHash !== signature) || !signature) {
+    if ( !signature || (secretHash !== signature) ) {
         console.error("Invalid Flutterwave signature");
         return res.status(401).json({'message' :'Unauthorized Access'});
     }
@@ -163,7 +163,6 @@ const flutterwaveWebhook = async (req, res) => {
     res.status(200).end();
 
     const txRef = payload?.data?.tx_ref;
-    const status = payload?.data?.status;
 
     if (!txRef) {
         console.log("Missing tx_ref");
@@ -187,35 +186,26 @@ const flutterwaveWebhook = async (req, res) => {
         return
    }
 
-   let response;
-   if (payload.event === 'charge.completed') {
+   let response = null;
+   if (payload.event === 'charge.completed' && payload.data?.status === 'successful') {
 
-        response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
+        try { 
+            response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
             headers: {
                 Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
             }
         });
+        } catch (e) {
+            console.log("Flutterwave verification failed:", e.message)
+        }
     }
-
-
+    
     if (response) {
     console.log("Webhook Response:", response.data);
     } else {
         console.log("No verification call made");
     }
     
-
-
-    const verifyOrder = await prisma.order.findUnique({
-        where: {
-            txRef
-        }
-    })
-
-    if (!verifyOrder) {
-        console.log('Order do not exist')
-        return
-    }
 
     await prisma.$transaction( async (tx) => {
         await tx.order.update({
@@ -228,9 +218,9 @@ const flutterwaveWebhook = async (req, res) => {
     })
     
     if (
-        response.data.data.status === "successful"
-        && response.data.data.amount === verifyOrder.total_price
-        && response.data.data.tx_ref === verifyOrder.txRef ) {
+        response?.data?.data?.status === "successful"
+        && response?.data?.data?.amount === existingPayment.total_price
+        && response?.data?.data?.tx_ref === existingPayment.txRef ) {
 
         const updatedOrder = await tx.order.update({
         where: {
@@ -265,26 +255,27 @@ const flutterwaveWebhook = async (req, res) => {
             }))
         })
 
-        console.log('Payment successful')
+        console.log(`Payment successful for txRef: ${txRef}`)
 
     } else {
-         const updatedOrder = await tx.order.update({
-        where: {
-            txRef
-        },
-        data: {
-            status: 'failed',
-            purchased: true
-        }
+        await tx.order.update({
+            where: {
+                txRef
+            },
+            data: {
+                status: 'failed',
+                purchased: false
+            }
         })
-        console.log('Payment Failed')
+
+        console.log(`Payment Failed for txRef: ${txRef}`)
     }
     })
-    
+
     
     } catch (e) {
-        console.log(e)
-        return res.status(500).json('Internal server error')
+        console.log('Webhook handler error:', e)
+        // return res.status(500).json('Internal server error')
     }
 
 }
