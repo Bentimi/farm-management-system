@@ -188,7 +188,7 @@ const flutterwaveWebhook = async (req, res) => {
    }
 
    let response;
-   if (payload.event === 'charge.completed' && payload.data.status === 'successful') {
+   if (payload.event === 'charge.completed') {
 
         response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
             headers: {
@@ -197,7 +197,12 @@ const flutterwaveWebhook = async (req, res) => {
         });
     }
 
-    console.log("Webhook Response", response)
+
+    if (response) {
+    console.log("Webhook Response:", response.data);
+    } else {
+        console.log("No verification call made");
+    }
     
 
 
