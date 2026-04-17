@@ -152,7 +152,7 @@ const createRedirectUrl = async (userId, data) => {
                 orderId: null
             },
             data: {
-                orderId: createorder.id
+                orderId: createOrder.id
             }  
         })
     })
