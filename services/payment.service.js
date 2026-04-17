@@ -123,23 +123,28 @@ const createRedirectUrl = async (userId, data) => {
             }
         })
 
-        
-        const createorder = await tx.order.upsert({
-            where: {
-                id: existingOrder.id
-            },
-            update: {
-                status: 'pending',
-                txRef: txRef,
-                total_price: totalAmount
-            },
-            create: {
+        let createOrder;
+
+        if (existingOrder) {
+            createOrder = await tx.order.update({
+                where: {
+                    id: existingOrder.id
+                },
+                data: {
+                    status: 'pending',
+                    txRef: txRef,
+                    total_price: totalAmount
+                }
+            })
+        } else {
+            createOrder = await tx.order.create({
                 status: 'pending',
                 orderedUserId: userAuth.id,
                 txRef: txRef,
                 total_price: totalAmount
-            }
-        })
+            })
+        }
+
 
         const carts = await tx.cart.updateMany({
             where: {
