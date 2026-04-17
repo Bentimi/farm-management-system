@@ -10610,18 +10610,18 @@ export namespace Prisma {
 
   export type OrderWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    txRef?: string
     AND?: OrderWhereInput | OrderWhereInput[]
     OR?: OrderWhereInput[]
     NOT?: OrderWhereInput | OrderWhereInput[]
     orderedUserId?: StringFilter<"Order"> | string
     purchased?: BoolFilter<"Order"> | boolean
     total_price?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
-    txRef?: StringNullableFilter<"Order"> | string | null
     status?: EnumorderStatusNullableFilter<"Order"> | $Enums.orderStatus | null
     orderedDate?: DateTimeFilter<"Order"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     carts?: CartListRelationFilter
-  }, "id">
+  }, "id" | "txRef">
 
   export type OrderOrderByWithAggregationInput = {
     id?: SortOrder

@@ -187,9 +187,10 @@ const flutterwaveWebhook = async (req, res) => {
         return
    }
 
+   let response;
    if (payload.event === 'charge.completed' && payload.data.status === 'successful') {
 
-        const  response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
+        response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
             headers: {
                 Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
             }

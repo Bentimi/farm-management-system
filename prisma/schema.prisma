@@ -144,7 +144,7 @@ model Order {
 
   purchased    Boolean  @default(false)
   total_price  Decimal  @db.Decimal(10,2)
-  txRef        String?
+  txRef        String?  @unique
   status       orderStatus? @default(pending)
   orderedDate  DateTime @default(now())
 
