@@ -146,6 +146,10 @@ const flutterwaveWebhook = async (req, res) => {
             process.env.FLW_SECRET_KEY
         )
 
+    const response = await axios.get(`https://api.flutterwave.com/v3/transactions/288200108/verify`) {
+
+    }
+
 
     // If you specified a secret hash, check for the signature
 
@@ -156,23 +160,23 @@ const flutterwaveWebhook = async (req, res) => {
         throw new AppError("Unauthorized request", 401)
     }
     const payload = req.body;
-    console.log(payload)
+    console.log(`Webhook payload ${payload}`)
 
-    const existingEvent = await PaymentEvent.where({id: payload.id}).find();
-        if (existingEvent.status === payload.status) {
-            // The status hasn't changed,
-            // so it's probably just a duplicate event
-            // and we can discard it
-            res.status(200).end();
-        }
+    // const existingEvent = await PaymentEvent.where({id: payload.id}).find();
+    //     if (existingEvent.status === payload.status) {
+    //         // The status hasn't changed,
+    //         // so it's probably just a duplicate event
+    //         // and we can discard it
+    //         res.status(200).json().end();
+    //     }
 
-        // Record this event
-        await PaymentEvent.save(payload);
+    //     // Record this event
+    //     await PaymentEvent.save(payload);
 
     // It's a good idea to log all received events.
     // console.log(payload);
     // Do something (that doesn't take too long) with the payload
-    const response = await flw.Transaction.verify({id: payload.id});
+    // const response = await flw.Transaction.verify({id: payload.id});
     if (
         response.data.status === "successful"
         && response.data.amount === expectedAmount
