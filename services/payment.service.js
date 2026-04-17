@@ -119,7 +119,7 @@ const createRedirectUrl = async (userId, data) => {
         
         const createorder = await tx.order.upsert({
             where: {
-                userId: userAuth.id,
+                ordereduserId: userAuth.id,
                 purchased: false
             },
             update: {
