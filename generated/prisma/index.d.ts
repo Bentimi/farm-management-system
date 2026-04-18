@@ -7653,10 +7653,12 @@ export namespace Prisma {
 
   export type OrderAvgAggregateOutputType = {
     total_price: Decimal | null
+    taxFee: Decimal | null
   }
 
   export type OrderSumAggregateOutputType = {
     total_price: Decimal | null
+    taxFee: Decimal | null
   }
 
   export type OrderMinAggregateOutputType = {
@@ -7666,6 +7668,8 @@ export namespace Prisma {
     total_price: Decimal | null
     txRef: string | null
     status: $Enums.orderStatus | null
+    taxFee: Decimal | null
+    verifiedAt: Date | null
     orderedDate: Date | null
   }
 
@@ -7676,6 +7680,8 @@ export namespace Prisma {
     total_price: Decimal | null
     txRef: string | null
     status: $Enums.orderStatus | null
+    taxFee: Decimal | null
+    verifiedAt: Date | null
     orderedDate: Date | null
   }
 
@@ -7686,6 +7692,8 @@ export namespace Prisma {
     total_price: number
     txRef: number
     status: number
+    taxFee: number
+    verifiedAt: number
     orderedDate: number
     _all: number
   }
@@ -7693,10 +7701,12 @@ export namespace Prisma {
 
   export type OrderAvgAggregateInputType = {
     total_price?: true
+    taxFee?: true
   }
 
   export type OrderSumAggregateInputType = {
     total_price?: true
+    taxFee?: true
   }
 
   export type OrderMinAggregateInputType = {
@@ -7706,6 +7716,8 @@ export namespace Prisma {
     total_price?: true
     txRef?: true
     status?: true
+    taxFee?: true
+    verifiedAt?: true
     orderedDate?: true
   }
 
@@ -7716,6 +7728,8 @@ export namespace Prisma {
     total_price?: true
     txRef?: true
     status?: true
+    taxFee?: true
+    verifiedAt?: true
     orderedDate?: true
   }
 
@@ -7726,6 +7740,8 @@ export namespace Prisma {
     total_price?: true
     txRef?: true
     status?: true
+    taxFee?: true
+    verifiedAt?: true
     orderedDate?: true
     _all?: true
   }
@@ -7823,6 +7839,8 @@ export namespace Prisma {
     total_price: Decimal
     txRef: string | null
     status: $Enums.orderStatus | null
+    taxFee: Decimal | null
+    verifiedAt: Date | null
     orderedDate: Date
     _count: OrderCountAggregateOutputType | null
     _avg: OrderAvgAggregateOutputType | null
@@ -7852,6 +7870,8 @@ export namespace Prisma {
     total_price?: boolean
     txRef?: boolean
     status?: boolean
+    taxFee?: boolean
+    verifiedAt?: boolean
     orderedDate?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     carts?: boolean | Order$cartsArgs<ExtArgs>
@@ -7865,6 +7885,8 @@ export namespace Prisma {
     total_price?: boolean
     txRef?: boolean
     status?: boolean
+    taxFee?: boolean
+    verifiedAt?: boolean
     orderedDate?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
@@ -7876,6 +7898,8 @@ export namespace Prisma {
     total_price?: boolean
     txRef?: boolean
     status?: boolean
+    taxFee?: boolean
+    verifiedAt?: boolean
     orderedDate?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["order"]>
@@ -7887,10 +7911,12 @@ export namespace Prisma {
     total_price?: boolean
     txRef?: boolean
     status?: boolean
+    taxFee?: boolean
+    verifiedAt?: boolean
     orderedDate?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderedUserId" | "purchased" | "total_price" | "txRef" | "status" | "orderedDate", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderedUserId" | "purchased" | "total_price" | "txRef" | "status" | "taxFee" | "verifiedAt" | "orderedDate", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     carts?: boolean | Order$cartsArgs<ExtArgs>
@@ -7916,6 +7942,8 @@ export namespace Prisma {
       total_price: Prisma.Decimal
       txRef: string | null
       status: $Enums.orderStatus | null
+      taxFee: Prisma.Decimal | null
+      verifiedAt: Date | null
       orderedDate: Date
     }, ExtArgs["result"]["order"]>
     composites: {}
@@ -8348,6 +8376,8 @@ export namespace Prisma {
     readonly total_price: FieldRef<"Order", 'Decimal'>
     readonly txRef: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'orderStatus'>
+    readonly taxFee: FieldRef<"Order", 'Decimal'>
+    readonly verifiedAt: FieldRef<"Order", 'DateTime'>
     readonly orderedDate: FieldRef<"Order", 'DateTime'>
   }
     
@@ -9979,6 +10009,8 @@ export namespace Prisma {
     total_price: 'total_price',
     txRef: 'txRef',
     status: 'status',
+    taxFee: 'taxFee',
+    verifiedAt: 'verifiedAt',
     orderedDate: 'orderedDate'
   };
 
@@ -10591,6 +10623,8 @@ export namespace Prisma {
     total_price?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     txRef?: StringNullableFilter<"Order"> | string | null
     status?: EnumorderStatusNullableFilter<"Order"> | $Enums.orderStatus | null
+    taxFee?: DecimalNullableFilter<"Order"> | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     orderedDate?: DateTimeFilter<"Order"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     carts?: CartListRelationFilter
@@ -10603,6 +10637,8 @@ export namespace Prisma {
     total_price?: SortOrder
     txRef?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
+    taxFee?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
     orderedDate?: SortOrder
     user?: UserOrderByWithRelationInput
     carts?: CartOrderByRelationAggregateInput
@@ -10618,6 +10654,8 @@ export namespace Prisma {
     purchased?: BoolFilter<"Order"> | boolean
     total_price?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     status?: EnumorderStatusNullableFilter<"Order"> | $Enums.orderStatus | null
+    taxFee?: DecimalNullableFilter<"Order"> | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     orderedDate?: DateTimeFilter<"Order"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     carts?: CartListRelationFilter
@@ -10630,6 +10668,8 @@ export namespace Prisma {
     total_price?: SortOrder
     txRef?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
+    taxFee?: SortOrderInput | SortOrder
+    verifiedAt?: SortOrderInput | SortOrder
     orderedDate?: SortOrder
     _count?: OrderCountOrderByAggregateInput
     _avg?: OrderAvgOrderByAggregateInput
@@ -10648,6 +10688,8 @@ export namespace Prisma {
     total_price?: DecimalWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string
     txRef?: StringNullableWithAggregatesFilter<"Order"> | string | null
     status?: EnumorderStatusNullableWithAggregatesFilter<"Order"> | $Enums.orderStatus | null
+    taxFee?: DecimalNullableWithAggregatesFilter<"Order"> | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
     orderedDate?: DateTimeWithAggregatesFilter<"Order"> | Date | string
   }
 
@@ -11154,6 +11196,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
     user: UserCreateNestedOneWithoutOrdersInput
     carts?: CartCreateNestedManyWithoutOrderInput
@@ -11166,6 +11210,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
     carts?: CartUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -11176,6 +11222,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutOrdersNestedInput
     carts?: CartUpdateManyWithoutOrderNestedInput
@@ -11188,6 +11236,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     carts?: CartUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -11199,6 +11249,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
   }
 
@@ -11208,6 +11260,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11218,6 +11272,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11860,11 +11916,14 @@ export namespace Prisma {
     total_price?: SortOrder
     txRef?: SortOrder
     status?: SortOrder
+    taxFee?: SortOrder
+    verifiedAt?: SortOrder
     orderedDate?: SortOrder
   }
 
   export type OrderAvgOrderByAggregateInput = {
     total_price?: SortOrder
+    taxFee?: SortOrder
   }
 
   export type OrderMaxOrderByAggregateInput = {
@@ -11874,6 +11933,8 @@ export namespace Prisma {
     total_price?: SortOrder
     txRef?: SortOrder
     status?: SortOrder
+    taxFee?: SortOrder
+    verifiedAt?: SortOrder
     orderedDate?: SortOrder
   }
 
@@ -11884,11 +11945,14 @@ export namespace Prisma {
     total_price?: SortOrder
     txRef?: SortOrder
     status?: SortOrder
+    taxFee?: SortOrder
+    verifiedAt?: SortOrder
     orderedDate?: SortOrder
   }
 
   export type OrderSumOrderByAggregateInput = {
     total_price?: SortOrder
+    taxFee?: SortOrder
   }
 
   export type EnumorderStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -13036,6 +13100,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
     carts?: CartCreateNestedManyWithoutOrderInput
   }
@@ -13046,6 +13112,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
     carts?: CartUncheckedCreateNestedManyWithoutOrderInput
   }
@@ -13191,6 +13259,8 @@ export namespace Prisma {
     total_price?: DecimalFilter<"Order"> | Decimal | DecimalJsLike | number | string
     txRef?: StringNullableFilter<"Order"> | string | null
     status?: EnumorderStatusNullableFilter<"Order"> | $Enums.orderStatus | null
+    taxFee?: DecimalNullableFilter<"Order"> | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: DateTimeNullableFilter<"Order"> | Date | string | null
     orderedDate?: DateTimeFilter<"Order"> | Date | string
   }
 
@@ -13795,6 +13865,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
     user: UserCreateNestedOneWithoutOrdersInput
   }
@@ -13806,6 +13878,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
   }
 
@@ -13951,6 +14025,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutOrdersNestedInput
   }
@@ -13962,6 +14038,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14336,6 +14414,8 @@ export namespace Prisma {
     total_price: Decimal | DecimalJsLike | number | string
     txRef?: string | null
     status?: $Enums.orderStatus | null
+    taxFee?: Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: Date | string | null
     orderedDate?: Date | string
   }
 
@@ -14490,6 +14570,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     carts?: CartUpdateManyWithoutOrderNestedInput
   }
@@ -14500,6 +14582,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
     carts?: CartUncheckedUpdateManyWithoutOrderNestedInput
   }
@@ -14510,6 +14594,8 @@ export namespace Prisma {
     total_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     txRef?: NullableStringFieldUpdateOperationsInput | string | null
     status?: NullableEnumorderStatusFieldUpdateOperationsInput | $Enums.orderStatus | null
+    taxFee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    verifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     orderedDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

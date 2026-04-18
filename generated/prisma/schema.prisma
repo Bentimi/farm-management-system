@@ -143,6 +143,8 @@ model Order {
   total_price Decimal      @db.Decimal(10, 2)
   txRef       String?      @unique
   status      orderStatus? @default(pending)
+  taxFee      Decimal?     @db.Decimal(10, 2)
+  verifiedAt  DateTime?
   orderedDate DateTime     @default(now())
 
   carts Cart[] @relation("cartOrder")

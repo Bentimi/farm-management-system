@@ -186,6 +186,8 @@ exports.Prisma.OrderScalarFieldEnum = {
   total_price: 'total_price',
   txRef: 'txRef',
   status: 'status',
+  taxFee: 'taxFee',
+  verifiedAt: 'verifiedAt',
   orderedDate: 'orderedDate'
 };
 
