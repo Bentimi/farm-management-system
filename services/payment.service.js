@@ -242,7 +242,8 @@ const flutterwaveWebhook = async (req, res) => {
             txRef
         },
         data: {
-            status: 'processing'
+            status: 'processing',
+            verifiedAt: new Date()
         }
     })
 

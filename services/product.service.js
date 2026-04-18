@@ -599,6 +599,10 @@ const addToCart = async (userId, productId, data) => {
         throw new AppError("Product not found", 404);
     }
 
+    if (existingProduct.quantity < data.quantity) {
+        throw new AppError("Quantity exceeds Stock", 400)
+    }
+
     const existingCart = await prisma.cart.findFirst({
         where: {
             productId: productId,
@@ -614,7 +618,7 @@ const addToCart = async (userId, productId, data) => {
     const result = await prisma.$transaction(async (tx) => {
 
         if (existingProduct.quantity < data.quantity) {
-            throw new AppError(`Insufficient product quantity, available: ${existingProduct.quantity}`, 400);
+            throw new AppError("Quantity exceeds Stock", 400);
         }
 
 
@@ -660,9 +664,13 @@ const editCartItem = async (userId, cartId, data) => {
         throw new AppError("Unauthorized user", 403);
     }
 
-    if (!data.quantity || data.quantity <= 0) {
+    if (data.quantity === undefined || data.quantity === null) {
         throw new AppError("A valid quantity is required", 400);
     }
+
+    // if (data.quantity <= 0) {
+    //     return await deleteCartItem(userId, cartId);
+    // }
 
     const result = await prisma.$transaction(async (tx) => {
 
@@ -690,6 +698,10 @@ const editCartItem = async (userId, cartId, data) => {
         if (!existingProduct) {
             throw new AppError("Product not found", 404);
         }
+
+        if (existingProduct.quantity < data.quantity) {
+        throw new AppError("Quantity exceeds Stock", 400)
+    }
 
         const productPrice = existingProduct.newPrice ?? existingProduct.price
 

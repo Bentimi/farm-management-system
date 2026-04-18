@@ -39,12 +39,11 @@ const productApprovalSchema = joi.object({
 const productCartSchema = joi.object({
     quantity: joi.number()
     .integer()
-    .positive()
-    .min(1)
+    .min(0)
     .required()
     .messages({
         'number.base': 'Quantity must be a number.',
-        'number.min': 'You must add at least 1 item to the cart.',
+        'number.min': 'Quantity cannot be negative.',
     })
 })
 
