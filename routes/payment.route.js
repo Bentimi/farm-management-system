@@ -8,5 +8,6 @@ const validatedData = require("../validation/payment.validation");
 
 router.post('/create-payment-link', authMiddleware, doubleCsrfProtection, validatedData.validatedLink, paymentController.create_redirectUrl);
 router.post('/flutterwave-webhook', paymentService.flutterwaveWebhook);
+router.get('/status', authMiddleware, paymentController.getPaymentStatus);
 
 module.exports = router;

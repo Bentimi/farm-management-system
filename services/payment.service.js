@@ -168,181 +168,125 @@ const createRedirectUrl = async (userId, data) => {
 }
 
 
+const finalizeOrder = async (txRef, status) => {
+    const existingPayment = await prisma.order.findUnique({ where: { txRef } });
+    if (!existingPayment) return;
+
+    if (existingPayment.status === 'successful' || existingPayment.status === 'failed') {
+        return;
+    }
+
+    await prisma.$transaction(async (tx) => {
+        if (status === 'successful') {
+            await tx.order.update({
+                where: { txRef },
+                data: { 
+                    status: 'successful', 
+                    purchased: true, 
+                    verifiedAt: new Date() 
+                }
+            });
+
+            const carts = await tx.cart.findMany({
+                where: { orderId: existingPayment.id },
+                include: { product: true }
+            });
+
+            await tx.cart.updateMany({
+                where: { orderId: existingPayment.id },
+                data: { checked: true }
+            });
+
+            for (const cart of carts) {
+                if (cart.product && cart.quantity > 0) {
+                    await tx.product.update({
+                        where: { id: cart.productId },
+                        data: { quantity: { decrement: cart.quantity } }
+                    });
+                }
+            }
+
+            await tx.productInvoice.createMany({
+                data: carts.map(cart => ({
+                    cartId: cart.id,
+                    productPrice: cart.price,
+                    invoiceUserId: cart.userId
+                }))
+            });
+        } else {
+            await tx.order.update({
+                where: { txRef },
+                data: { status: 'failed', purchased: false, verifiedAt: new Date() }
+            });
+        }
+    });
+};
+
+
 const flutterwaveWebhook = async (req, res) => {
 
     try {
         const secretHash = process.env.FLW_SECRET_HASH;
-    if (!secretHash) {
-        console.error("FLW_SECRET_HASH not set");
-        return res.status(500).json("Internal server error")
-    }
-
-    const signature = req.headers["verif-hash"];
-        if(!signature) return res.status(401).json({'message': 'Unauthorized Access'});
-
-    
-    if ( !signature || (secretHash !== signature) ) {
-        console.error("Invalid Flutterwave signature");
-        return res.status(401).json({'message' :'Unauthorized Access'});
-    }
-
-    const payload = req.body;
-    console.log("Webhook payload:", payload); 
-
-    res.status(200).end();
-
-    const txRef = payload?.data?.tx_ref;
-
-    if (!txRef) {
-        console.log("Missing tx_ref");
-        return;
-    }
-
-   const existingPayment = await prisma.order.findUnique({
-        where: {
-            txRef
+        if (!secretHash) {
+            console.error("FLW_SECRET_HASH not set");
+            return res.status(500).json("Internal server error");
         }
-   })
 
-   if (!existingPayment) {
-       console.log('Transaction Reference do not exist' )
-       return;
-   }
+        const signature = req.headers["verif-hash"];
+        if (!signature || secretHash !== signature) {
+            console.error("Invalid Flutterwave signature");
+            return res.status(401).json({ message: 'Unauthorized Access' });
+        }
 
-    
-   if (existingPayment.status === 'successful' || existingPayment.status === 'failed') {
-        console.log("Already finalized:", txRef);
-        return
-   }
+        const payload = req.body;
+        console.log("Webhook payload:", JSON.stringify(payload, null, 2));
 
-   let response = null;
-   if (payload.event === 'charge.completed' && payload.data?.status === 'successful') {
 
-        try { 
-            response = await axios.get(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
-            headers: {
-                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+        res.status(200).end();
+
+        const txRef = payload?.data?.tx_ref;
+        if (!txRef) {
+            console.log("Webhook: missing tx_ref, skipping.");
+            return;
+        }
+
+        let verifiedSuccessful = false;
+
+        if (payload.event === 'charge.completed' && payload.data?.status === 'successful') {
+            try {
+                const fwRes = await axios.get(
+                    `https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`,
+                    { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } }
+                );
+
+                const fwData = fwRes.data?.data;
+                console.log('Webhook FW verify response:', JSON.stringify(fwData, null, 2));
+
+                const existingPayment = await prisma.order.findUnique({ where: { txRef } });
+                if (!existingPayment) return;
+
+                const amountMatch = Math.abs(Number(fwData?.amount) - Number(existingPayment.total_price)) < 0.01;
+
+                verifiedSuccessful = (
+                    fwData?.status === 'successful'
+                    && amountMatch
+                    && fwData?.tx_ref === existingPayment.txRef
+                );
+            } catch (e) {
+                console.error('Webhook: Flutterwave verification request failed:', e.message);
             }
-        });
-        } catch (e) {
-            console.log("Flutterwave verification failed:", e.message)
         }
-    }
-    
-    if (response) {
-    console.log("Webhook Response:", response.data);
-    } else {
-        console.log("No verification call made");
-    }
-    
 
-    await prisma.$transaction( async (tx) => {
-        await tx.order.update({
-        where: {
-            txRef
-        },
-        data: {
-            status: 'processing',
-            verifiedAt: new Date()
-        }
-    })
+        await finalizeOrder(txRef, verifiedSuccessful ? 'successful' : 'failed');
+        console.log(`Webhook: processed ${txRef} as ${verifiedSuccessful ? 'successful' : 'failed'}`);
 
-    console.log(`
-        Status: ${response.data.data.status}
-        Total Price: {
-           Response Price => ${response.data.data.amount} 
-           Payment Price => ${existingPayment.total_price}
-        }
-        TNX Ref: {
-           Response Ref => ${response.data.data.tx_ref} 
-           Payment Ref => ${existingPayment.txRef}
-        }
-        `)
-        console.log(typeof(existingPayment.total_price))
-        console.log(typeof(response.data.data.amount))
-    
-    if (
-        response?.data?.data?.status === "successful"
-        && response?.data?.data?.amount === Number(existingPayment.total_price)
-        && response?.data?.data?.tx_ref === existingPayment.txRef ) {
-
-        const updatedOrder = await tx.order.update({
-        where: {
-            txRef
-        },
-        data: {
-            status: 'successful',
-            purchased: true,
-            verifiedAt: new Date()
-        }
-        })
-        
-        const carts = await tx.cart.findMany({
-            where: {
-                orderId: existingPayment.id
-            },
-            include: {
-                product: true,
-        }
-        }) 
-        
-        await tx.cart.updateMany({
-            where: {
-                orderId: existingPayment.id
-            },
-            data: {
-                checked: true
-            }
-        })
-
-        for (const cart of carts) {
-            if (cart.product && cart.quantity > 0) {
-                await tx.product.update({
-                    where: { id: cart.productId },
-                    data: {
-                        quantity: {
-                            decrement: cart.quantity
-                        }
-                    }
-                });
-            }
-    }
-
-       await tx.productInvoice.createMany({
-            data: carts.map(cart =>( {
-                cartId: cart.id,
-                productPrice: cart.price,
-                invoiceUserId: cart.userId
-            }))
-        })
-
-        console.log(`Payment successful for txRef: ${txRef}`)
-
-    } else {
-        await tx.order.update({
-            where: {
-                txRef
-            },
-            data: {
-                status: 'failed',
-                purchased: false,
-                verifiedAt: new Date()
-            }
-        })
-
-        console.log(`Payment Failed for txRef: ${txRef}`)
-    }
-    })
-
-    
     } catch (e) {
-        console.log('Webhook handler error:', e)
-        // return res.status(500).json('Internal server error')
+        console.error('Webhook handler error:', e);
     }
-
 }
 
 module.exports = {
     createRedirectUrl,
+    finalizeOrder,
     flutterwaveWebhook
 }

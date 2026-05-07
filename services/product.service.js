@@ -471,6 +471,55 @@ const createCategory = async (userId, data) => {
     return { category: newCategory };
 }
 
+const updateCategory = async (userId, categoryId, data) => {
+    const userAuth = await prisma.user.findUnique({
+        where: { id: userId }
+    });
+
+    if (!userAuth) {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!userAuth.active) {
+        throw new AppError("Inactive user", 403);
+    }
+
+    if (userAuth.role !== "admin" && userAuth.role !== "staff") {
+        throw new AppError("Unauthorized user", 401);
+    }
+
+    if (!data.category) {
+        throw new AppError("Category name is required", 400);
+    }
+
+    const existingCategory = await prisma.productCategory.findUnique({
+        where: { id: categoryId }
+    });
+
+    if (!existingCategory) {
+        throw new AppError("Category not found", 404);
+    }
+
+    // Check if the new name already exists (excluding current category)
+    const duplicateCategory = await prisma.productCategory.findFirst({
+        where: {
+            category: data.category,
+            NOT: { id: categoryId }
+        }
+    });
+
+    if (duplicateCategory) {
+        throw new AppError("A category with this name already exists", 409);
+    }
+
+    const updatedCategory = await prisma.productCategory.update({
+        where: { id: categoryId },
+        data: { category: data.category }
+    });
+
+    return { category: updatedCategory };
+}
+
 const productApproval = async (userId, productId, data) => {
     const userAuth = await prisma.product.findUnique({
         where: {
@@ -924,6 +973,7 @@ module.exports = {
     updateProductDescription,
     deleteProductDescription,
     createCategory,
+    updateCategory,
     productApproval,
     productPublish,
     addToCart,

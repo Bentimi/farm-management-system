@@ -17,6 +17,7 @@ router.post('/description/:id', authMiddleware, doubleCsrfProtection, validatedD
 router.put('/description/:productId/:descriptionId', authMiddleware, doubleCsrfProtection, validatedData.validatedProductDescriptionSchema, upload.array('photo', 10), productController.update_product_description);
 router.delete('/description/:productId/:descriptionId', authMiddleware, doubleCsrfProtection, productController.delete_product_description);
 router.post('/add-category', authMiddleware, doubleCsrfProtection, validatedData.validatedProductCategorySchema, productController.create_category);
+router.put('/category/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductCategorySchema, productController.update_category);
 router.patch('/approval/:id', authMiddleware, doubleCsrfProtection, productController.product_approval);
 router.patch('/status/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedProductApprovalSchema, productController.product_publish);
 router.post('/add-to-cart/:id', authMiddleware, doubleCsrfProtection, validatedData.validatedCartSchema, productController.add_to_cart);

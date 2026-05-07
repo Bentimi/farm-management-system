@@ -131,7 +131,7 @@ const delete_product_description = async (req, res, next) => {
     }
 }
 
-const create_category = async (req, res, next) => {
+ const create_category = async (req, res, next) => {
     try {
         const userId = req.user.id;
         const data = req.body;
@@ -142,6 +142,23 @@ const create_category = async (req, res, next) => {
             message: "Category created successfully",
             data: category
         })
+    } catch (e) {
+        next(e);
+    }
+ }
+
+ const update_category = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const categoryId = req.params.id;
+        const data = req.body;
+
+        const category = await productService.updateCategory(userId, categoryId, data);
+        res.status(200).json({
+            status: "success",
+            message: "Category updated successfully",
+            data: category
+        });
     } catch (e) {
         next(e);
     }
@@ -318,6 +335,7 @@ module.exports = {
     update_product_description,
     delete_product_description,
     create_category,
+    update_category,
     product_approval,
     product_publish,
     add_to_cart,
